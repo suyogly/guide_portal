@@ -53,33 +53,37 @@ model Guide {
   slug            String   @unique
   name            String
   avatar          String?
+  coverImage      String?
   description     String?
+  specialty       String?
+  quote           String?
 
   experienceYears Int
+  experience      String?
+  region          String?
+
   licenseNumber   String?
   kycProofUrl     String?
 
   ratePerDay      Decimal  @db.Decimal(10, 2)
+  rating          Decimal? @db.Decimal(3, 1)
   gender          Gender
 
-  specialty           String?
-  quote               String?
-  coverImage          String?            // hero background on the profile page
-  rating              Decimal?           @db.Decimal(3, 1)
+  tags              String[]
+  specializedRoutes String[]
+  fluency           String?
 
   isVerified          Boolean            @default(false)
 
   availabilityStatus  AvailabilityStatus @default(AVAILABLE)
-  availableFromDate   DateTime?          // set when status is AVAILABLE_SOON
-  unavailableDates    GuideUnavailableDate[]
+  availableFromDate   DateTime?
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  languages       GuideLanguage[]
-  photos          GuidePhoto[]
-  regions         TrekRegion[] @relation("GuideRegions")
-  routes          TrekRoute[]  @relation("GuideRoutes")
+  languages        GuideLanguage[]
+  photos           GuidePhoto[]
+  unavailableDates GuideUnavailableDate[]
 }
 
 // Specific dates a guide is unavailable (booked / blocked)
@@ -130,7 +134,6 @@ model TrekRegion {
 
   routes      TrekRoute[]
   faqs        RegionFaq[]
-  guides      Guide[]     @relation("GuideRegions")
 }
 
 // ─────────────────────────────────────────────
@@ -142,7 +145,7 @@ model TrekRoute {
   slug         String     @unique
   title        String
   description  String?
-  body         String?    // rich text / markdown article body
+  body         String?
   coverImage   String?
 
   regionId     String
@@ -152,8 +155,6 @@ model TrekRoute {
   maxAltitudeM Int?
   durationDays Int?
   bestSeason   String?
-
-  // Seasonal temperature info: { "spring": { min: 5, max: 15 }, ... }
   temperature  Json?
 
   authorName   String?
@@ -164,7 +165,6 @@ model TrekRoute {
 
   itinerary    ItineraryDay[]
   faqs         RouteFaq[]
-  guides       Guide[]    @relation("GuideRoutes")
 }
 
 // Day-by-day itinerary entry for a trek route
