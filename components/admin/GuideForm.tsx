@@ -1,0 +1,576 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { ArrowLeft, Plus, X, Save, ChevronDown } from "lucide-react";
+import {
+  getGuides,
+  saveGuides,
+  genId,
+  toSlug,
+  computeAvailability,
+  type AdminGuide,
+  type AdminLanguage,
+} from "@/lib/admin-store";
+import ImageUpload from "@/components/admin/ImageUpload";
+import AvailabilityCalendar from "@/components/admin/AvailabilityCalendar";
+
+// ─── Shared form primitives ───────────────────────────────────────────────────
+
+const inputCls =
+  "w-full rounded-xl bg-slate-900 border border-white/10 px-3.5 py-2.5 text-white placeholder:text-gray-600 focus:border-nepal-orange focus:ring-1 focus:ring-nepal-orange focus:outline-none transition-colors text-sm";
+const selectCls =
+  "w-full rounded-xl bg-slate-900 border border-white/10 px-3.5 py-2.5 text-white focus:border-nepal-orange focus:ring-1 focus:ring-nepal-orange focus:outline-none transition-colors text-sm appearance-none";
+
+function Field({
+  label,
+  hint,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <label className="block uppercase tracking-widest text-[10px] text-gray-400 mb-1.5 font-semibold">
+        {label}
+      </label>
+      {children}
+      {hint && <p className="text-[11px] text-gray-600 mt-1">{hint}</p>}
+    </div>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="bg-slate-900 border border-white/10 rounded-2xl p-6 space-y-5">
+      <h2 className="text-xs font-bold uppercase tracking-widest text-gray-500">{title}</h2>
+      {children}
+    </section>
+  );
+}
+
+// ─── GuideForm ────────────────────────────────────────────────────────────────
+
+async function compressImageForGallery(file: File): Promise<string> {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 900;
+        let { width, height } = img;
+        if (width > MAX || height > MAX) {
+          if (width >= height) { height = Math.round((height * MAX) / width); width = MAX; }
+          else { width = Math.round((width * MAX) / height); height = MAX; }
+        }
+        const c = document.createElement("canvas");
+        c.width = width; c.height = height;
+        c.getContext("2d")!.drawImage(img, 0, 0, width, height);
+        resolve(c.toDataURL("image/jpeg", 0.80));
+      };
+      img.src = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+export default function GuideForm({ guideId }: { guideId?: string }) {
+  const router = useRouter();
+  const isEditing = !!guideId;
+  const galleryInputRef = useRef<HTMLInputElement>(null);
+
+  // ── State ──
+  const [name, setName] = useState("");
+  const [slug, setSlug] = useState("");
+  const [specialty, setSpecialty] = useState("");
+  const [quote, setQuote] = useState("");
+  const [description, setDescription] = useState("");
+  const [gender, setGender] = useState<"MALE" | "FEMALE">("MALE");
+  const [region, setRegion] = useState("");
+
+  const [image, setImage] = useState("");       // profile photo
+  const [coverImage, setCoverImage] = useState(""); // hero background
+  const [photos, setPhotos] = useState<string[]>([]);
+
+  const [experienceYears, setExperienceYears] = useState(0);
+  const [experience, setExperience] = useState("");
+  const [licenseNumber, setLicenseNumber] = useState("");
+  const [kycVerified, setKycVerified] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
+  const [ratePerDay, setRatePerDay] = useState(30);
+  const [rating, setRating] = useState(5.0);
+
+  const [unavailableDates, setUnavailableDates] = useState<string[]>([]);
+  const [availabilityStatus, setAvailabilityStatus] =
+    useState<AdminGuide["availabilityStatus"]>("AVAILABLE");
+  const [availableFromDate, setAvailableFromDate] = useState("");
+
+  const [languages, setLanguages] = useState<AdminLanguage[]>([]);
+  const [tags, setTags] = useState("");
+  const [specializedRoutes, setSpecializedRoutes] = useState("");
+
+  const [saving, setSaving] = useState(false);
+
+  // ── Load existing guide ──
+  useEffect(() => {
+    if (!guideId) return;
+    const guides = getGuides();
+    const g = guides.find((x) => x.id === guideId);
+    if (!g) return;
+
+    setName(g.name);
+    setSlug(g.slug);
+    setSpecialty(g.specialty);
+    setQuote(g.quote);
+    setDescription(g.description);
+    setGender(g.gender);
+    setRegion(g.region);
+    setImage(g.image);
+    setCoverImage(g.coverImage);
+    setPhotos(g.photos);
+    setExperienceYears(g.experienceYears);
+    setExperience(g.experience);
+    setLicenseNumber(g.licenseNumber);
+    setKycVerified(g.kycVerified);
+    setIsVerified(g.isVerified);
+    setRatePerDay(g.ratePerDay);
+    setRating(g.rating);
+    setUnavailableDates(g.unavailableDates);
+    setAvailabilityStatus(g.availabilityStatus);
+    setAvailableFromDate(g.availableFromDate);
+    setLanguages(g.languages);
+    setTags(g.tags);
+    setSpecializedRoutes(g.specializedRoutes);
+  }, [guideId]);
+
+  // ── Availability change from calendar ──
+  function handleAvailabilityChange(
+    dates: string[],
+    status: AdminGuide["availabilityStatus"],
+    fromDate: string
+  ) {
+    setUnavailableDates(dates);
+    setAvailabilityStatus(status);
+    setAvailableFromDate(fromDate);
+  }
+
+  // ── Languages ──
+  function addLanguage() {
+    setLanguages((prev) => [...prev, { id: genId(), language: "", proficiency: "FLUENT" }]);
+  }
+  function removeLanguage(id: string) {
+    setLanguages((prev) => prev.filter((l) => l.id !== id));
+  }
+  function updateLanguage(id: string, key: keyof AdminLanguage, value: string) {
+    setLanguages((prev) => prev.map((l) => (l.id === id ? { ...l, [key]: value } : l)));
+  }
+
+  // ── Gallery photos ──
+  async function handleGalleryAdd(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
+    const compressed = await Promise.all(files.map(compressImageForGallery));
+    setPhotos((prev) => [...prev, ...compressed].slice(0, 8));
+    e.target.value = "";
+  }
+  function removePhoto(idx: number) {
+    setPhotos((prev) => prev.filter((_, i) => i !== idx));
+  }
+
+  // ── Save ──
+  function handleSave() {
+    if (!name.trim()) return;
+    setSaving(true);
+
+    const fluency = languages
+      .filter((l) => l.language.trim())
+      .map((l) => `${l.language} (${l.proficiency.charAt(0) + l.proficiency.slice(1).toLowerCase()})`)
+      .join(", ");
+
+    const { status, availableFromDate: autoFrom } = computeAvailability(unavailableDates);
+
+    const data: Omit<AdminGuide, "id" | "createdAt"> = {
+      slug: slug.trim() || toSlug(name),
+      name: name.trim(),
+      specialty: specialty.trim(),
+      quote: quote.trim(),
+      description: description.trim(),
+      gender,
+      region: region.trim(),
+      image,
+      coverImage,
+      photos,
+      experienceYears,
+      experience: experience.trim(),
+      licenseNumber: licenseNumber.trim(),
+      kycVerified,
+      isVerified,
+      ratePerDay,
+      rating,
+      unavailableDates,
+      availabilityStatus: status,
+      availableFromDate: autoFrom,
+      languages,
+      tags: tags.trim(),
+      specializedRoutes: specializedRoutes.trim(),
+      fluency,
+    };
+
+    const guides = getGuides();
+
+    if (isEditing && guideId) {
+      const updated = guides.map((g) => (g.id === guideId ? { ...g, ...data } : g));
+      saveGuides(updated);
+    } else {
+      saveGuides([{ id: genId(), ...data, createdAt: new Date().toISOString() }, ...guides]);
+    }
+
+    router.push("/admin/guides");
+  }
+
+  const pageTitle = isEditing ? `Edit — ${name || "Guide"}` : "New Guide";
+
+  return (
+    <div className="max-w-3xl mx-auto">
+      {/* Sticky header */}
+      <div className="sticky top-0 z-20 bg-slate-950/95 backdrop-blur-md border-b border-white/5 px-6 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Link
+            href="/admin/guides"
+            className="p-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/10 transition-all"
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </Link>
+          <div>
+            <p className="text-[10px] uppercase tracking-widest text-gray-500">Guides</p>
+            <h1 className="text-base font-display font-bold text-white leading-tight">
+              {pageTitle}
+            </h1>
+          </div>
+        </div>
+        <button
+          onClick={handleSave}
+          disabled={saving || !name.trim()}
+          className="flex items-center gap-2 rounded-full bg-nepal-orange px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-nepal-orange/20 hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+        >
+          <Save className="w-4 h-4" />
+          {isEditing ? "Update Guide" : "Create Guide"}
+        </button>
+      </div>
+
+      {/* Form body */}
+      <div className="p-6 space-y-6 pb-20">
+        {/* ── Identity ── */}
+        <Section title="Identity">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Field label="Full Name">
+              <input
+                className={inputCls}
+                placeholder="Tulasi Ram Paudel"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                onBlur={() => {
+                  if (!isEditing && name && !slug) setSlug(toSlug(name));
+                }}
+              />
+            </Field>
+            <Field label="Slug" hint="Auto-generated from name, used in the public URL">
+              <input
+                className={inputCls}
+                placeholder="tulasi-ram-paudel"
+                value={slug}
+                onChange={(e) => setSlug(toSlug(e.target.value))}
+              />
+            </Field>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Field label="Specialty">
+              <input
+                className={inputCls}
+                placeholder="Trek / Tour / Birding Guide"
+                value={specialty}
+                onChange={(e) => setSpecialty(e.target.value)}
+              />
+            </Field>
+            <Field label="Gender">
+              <div className="relative">
+                <select
+                  className={selectCls}
+                  value={gender}
+                  onChange={(e) => setGender(e.target.value as "MALE" | "FEMALE")}
+                >
+                  <option value="MALE">Male Guide</option>
+                  <option value="FEMALE">Female Guide</option>
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+              </div>
+            </Field>
+          </div>
+
+          <Field label="Region">
+            <input
+              className={inputCls}
+              placeholder="Annapurna Region"
+              value={region}
+              onChange={(e) => setRegion(e.target.value)}
+            />
+          </Field>
+
+          <Field label="Personal Quote">
+            <input
+              className={inputCls}
+              placeholder="What drives you to guide?"
+              value={quote}
+              onChange={(e) => setQuote(e.target.value)}
+            />
+          </Field>
+
+          <Field label="Bio / Description">
+            <textarea
+              className={`${inputCls} resize-none`}
+              rows={4}
+              placeholder="Tell trekkers about this guide's experience, personality, and approach…"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </Field>
+        </Section>
+
+        {/* ── Media ── */}
+        <Section title="Media">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <ImageUpload
+              label="Profile Photo"
+              value={image}
+              onChange={setImage}
+              ratio="1/1"
+              ratioLabel="1:1"
+              recommendedSize="400 × 400 px"
+              maxPx={600}
+            />
+            <ImageUpload
+              label="Cover / Hero Image"
+              value={coverImage}
+              onChange={setCoverImage}
+              ratio="16/9"
+              ratioLabel="16:9"
+              recommendedSize="1600 × 900 px"
+              maxPx={1400}
+            />
+          </div>
+
+          {/* Gallery */}
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="uppercase tracking-widest text-[10px] text-gray-400 font-semibold">
+                Gallery Photos
+              </span>
+              <span className="text-[10px] text-gray-600">
+                Ratio 4:3 · 800 × 600 px · max 8
+              </span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {photos.map((photo, idx) => (
+                <div
+                  key={idx}
+                  className="relative group rounded-xl overflow-hidden border border-white/10"
+                  style={{ aspectRatio: "4/3" }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={photo}
+                    alt={`Gallery ${idx + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removePhoto(idx)}
+                    className="absolute top-1.5 right-1.5 p-1 rounded-full bg-red-500/80 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
+              {photos.length < 8 && (
+                <button
+                  type="button"
+                  onClick={() => galleryInputRef.current?.click()}
+                  className="border-2 border-dashed border-white/10 hover:border-nepal-orange/50 rounded-xl flex flex-col items-center justify-center gap-1.5 transition-colors cursor-pointer group"
+                  style={{ aspectRatio: "4/3" }}
+                >
+                  <Plus className="w-5 h-5 text-gray-600 group-hover:text-nepal-orange transition-colors" />
+                  <span className="text-[10px] text-gray-600 group-hover:text-gray-400 transition-colors">
+                    Add Photo
+                  </span>
+                </button>
+              )}
+            </div>
+            <input
+              ref={galleryInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={handleGalleryAdd}
+            />
+          </div>
+        </Section>
+
+        {/* ── Professional ── */}
+        <Section title="Professional Details">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <Field label="Exp. Years">
+              <input
+                type="number"
+                min={0}
+                className={inputCls}
+                value={experienceYears}
+                onChange={(e) => setExperienceYears(Number(e.target.value))}
+              />
+            </Field>
+            <Field label="Display (e.g. 15+ Years)">
+              <input
+                className={inputCls}
+                placeholder="15+ Years"
+                value={experience}
+                onChange={(e) => setExperience(e.target.value)}
+              />
+            </Field>
+            <Field label="Rating (0–5)">
+              <input
+                type="number"
+                min={0}
+                max={5}
+                step={0.1}
+                className={inputCls}
+                value={rating}
+                onChange={(e) => setRating(Number(e.target.value))}
+              />
+            </Field>
+            <Field label="Rate / Day (USD)">
+              <input
+                type="number"
+                min={0}
+                className={inputCls}
+                value={ratePerDay}
+                onChange={(e) => setRatePerDay(Number(e.target.value))}
+              />
+            </Field>
+          </div>
+
+          <Field label="License Number" hint="Leave blank if no license held">
+            <input
+              className={inputCls}
+              placeholder="NTB-22522"
+              value={licenseNumber}
+              onChange={(e) => setLicenseNumber(e.target.value)}
+            />
+          </Field>
+
+          <div className="flex items-center gap-6 pt-1">
+            <label className="flex items-center gap-2.5 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                className="w-4 h-4 rounded accent-[#FF671F]"
+                checked={kycVerified}
+                onChange={(e) => setKycVerified(e.target.checked)}
+              />
+              <span className="text-sm text-gray-300">KYC Verified</span>
+            </label>
+            <label className="flex items-center gap-2.5 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                className="w-4 h-4 rounded accent-[#FF671F]"
+                checked={isVerified}
+                onChange={(e) => setIsVerified(e.target.checked)}
+              />
+              <span className="text-sm text-gray-300">Platform Verified</span>
+            </label>
+          </div>
+        </Section>
+
+        {/* ── Availability ── */}
+        <Section title="Availability Calendar">
+          <p className="text-xs text-gray-500 -mt-2">
+            Click any future date to mark it as unavailable. The availability
+            status is computed automatically from your selections.
+          </p>
+          <AvailabilityCalendar
+            unavailableDates={unavailableDates}
+            onChange={handleAvailabilityChange}
+          />
+        </Section>
+
+        {/* ── Languages ── */}
+        <Section title="Languages Spoken">
+          <div className="space-y-2.5">
+            {languages.map((lang) => (
+              <div key={lang.id} className="flex gap-2 items-center">
+                <input
+                  className={`${inputCls} flex-1`}
+                  placeholder="Language (e.g. English)"
+                  value={lang.language}
+                  onChange={(e) => updateLanguage(lang.id, "language", e.target.value)}
+                />
+                <div className="relative w-36 shrink-0">
+                  <select
+                    className={selectCls}
+                    value={lang.proficiency}
+                    onChange={(e) => updateLanguage(lang.id, "proficiency", e.target.value)}
+                  >
+                    <option value="NATIVE">Native</option>
+                    <option value="FLUENT">Fluent</option>
+                    <option value="BASIC">Basic</option>
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500 pointer-events-none" />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => removeLanguage(lang.id)}
+                  className="p-2 text-gray-500 hover:text-red-400 transition-colors shrink-0"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={addLanguage}
+              className="flex items-center gap-1.5 text-xs text-nepal-orange hover:text-orange-400 transition-colors mt-1"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Add Language
+            </button>
+          </div>
+        </Section>
+
+        {/* ── Tags & Specialization ── */}
+        <Section title="Tags & Specialization">
+          <Field label="Tags" hint="Comma-separated — shown as badges on the guide profile">
+            <input
+              className={inputCls}
+              placeholder="Birding Expert, Trek & Tour, Solo Female"
+              value={tags}
+              onChange={(e) => setTags(e.target.value)}
+            />
+          </Field>
+          <Field
+            label="Specialized Routes"
+            hint="Comma-separated route names"
+          >
+            <input
+              className={inputCls}
+              placeholder="Annapurna Base Camp, Poon Hill Trek, Mardi Himal Trek"
+              value={specializedRoutes}
+              onChange={(e) => setSpecializedRoutes(e.target.value)}
+            />
+          </Field>
+        </Section>
+      </div>
+    </div>
+  );
+}
