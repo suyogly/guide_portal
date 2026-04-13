@@ -15,7 +15,7 @@ import {
     Route,
     MessageCircle,
 } from "lucide-react";
-import { GUIDES } from "@/lib/guides";
+import { getAllGuides, getGuideBySlug } from "@/lib/db";
 import GuideAvailabilityChecker from "@/components/GuideAvailabilityChecker";
 
 interface PageProps {
@@ -29,12 +29,13 @@ const PROFICIENCY_STYLE: Record<string, string> = {
 };
 
 export async function generateStaticParams() {
-    return GUIDES.map((g) => ({ slug: g.slug }));
+    const guides = await getAllGuides();
+    return guides.map((g) => ({ slug: g.slug }));
 }
 
 export default async function GuideProfilePage({ params }: PageProps) {
     const { slug } = await params;
-    const guide = GUIDES.find((g) => g.slug === slug);
+    const guide = await getGuideBySlug(slug);
     if (!guide) notFound();
 
     const firstName = guide.name.split(" ")[0];
