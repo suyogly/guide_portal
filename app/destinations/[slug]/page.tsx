@@ -59,7 +59,9 @@ const REGIONS: Record<string, any> = {
         heroImage: "https://images.unsplash.com/photo-1589133372221-39656da2785d?q=80&w=2670&auto=format&fit=crop",
         treks: [
             { id: "manaslu-circuit", name: "Manaslu Circuit", duration: "14 Days", maxAltitude: "5,106m", difficulty: "Difficult", image: "https://images.unsplash.com/photo-1589133372221-39656da2785d?q=80&w=2670&auto=format&fit=crop", description: "A remote and culturally rich circuit around Mount Manaslu." },
-            { id: "larke-pass-trek", name: "Larke Pass Trek", duration: "14 Days", maxAltitude: "5,106m", difficulty: "Difficult", image: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?q=80&w=2600&auto=format&fit=crop", description: "An adventurous journey crossing the formidable Larke Pass, offering spectacular views of Manaslu and Himlung Himal." }
+            { id: "larke-pass-trek", name: "Larke Pass Trek", duration: "14 Days", maxAltitude: "5,106m", difficulty: "Difficult", image: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?q=80&w=2600&auto=format&fit=crop", description: "An adventurous journey crossing the formidable Larke Pass, offering spectacular views of Manaslu and Himlung Himal." },
+            { id: "tsum-valley", name: "Tsum Valley Trek", duration: "12 Days", maxAltitude: "3,700m", difficulty: "Moderate", image: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?q=80&w=2600&auto=format&fit=crop", description: "Step into the 'Hidden Valley' of Buddhism, a culturally preserved sanctuary untouched by time." },
+            { id: "nar-phu-valley", name: "Nar Phu Valley Trek", duration: "12 Days", maxAltitude: "5,320m", difficulty: "Strenuous", image: "https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?q=80&w=2670&auto=format&fit=crop", description: "Explore the 'Living Museum' of the Himalayas, crossing high passes into secluded stone villages." }
         ]
     },
     "langtang-region": {

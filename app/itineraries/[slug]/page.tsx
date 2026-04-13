@@ -235,6 +235,66 @@ const ITINERARIES: Record<string, any> = {
             { day: 14, title: "Drive back to Kathmandu", description: "A long road journey tracing back the Marsyangdi and Trishuli river valleys to Kathmandu.", distance: "190km", elevationGain: "0m", time: "8-9 hrs", altitude: 1400 }
         ]
     },
+    "tsum-valley": {
+        region: "Manaslu",
+        regionSlug: "manaslu-region",
+        duration: "12 Days",
+        maxAltitude: "3,700m",
+        difficulty: "Moderate",
+        rating: 4.8,
+        reviews: 28,
+        description: "The Tsum Valley Trek is a journey into one of the most remote and culturally preserved corners of the Himalayas. Known as the 'Hidden Valley,' Tsum was closed to outsiders until 2008, allowing its ancient Tibetan Buddhist traditions, stone villages, and sacred monasteries to remain largely untouched. This 12-day trek offers a profound sense of isolation and spiritual connection, taking you past Mani walls, through lush forests, and into high mountain basins where the local Tsumba people have lived for centuries in harmony with the peaks.",
+        faqs: [
+            { question: "Is Tsum Valley a restricted area?", answer: "Yes, Tsum Valley is a Restricted Area. Foreign trekkers require a special Restricted Area Permit (RAP) and must be accompanied by a licensed guide and at least one other trekker in their group." },
+            { question: "What is the highest point?", answer: "The highest point is Mu Gompa at 3,700m, an ancient monastery with spectacular views of the Ganesh Himal range." },
+            { question: "Can I combine it with Manaslu Circuit?", answer: "Absolutely! Many trekkers choose to add 6-7 days to the Manaslu Circuit to explore Tsum Valley, creating a comprehensive 19-21 day expedition." },
+            { question: "What is the best time to visit Tsum Valley?", answer: "Spring (March to May) and Autumn (September to November) offer the best weather and visibility. The valley is also beautiful in late Spring when rhododendrons bloom." }
+        ],
+        days: [
+            { day: 1, title: "Drive Kathmandu to Machha Khola", description: "A long, scenic drive through the Nepalese countryside, following the Budhi Gandaki River upstream to the start of the trail.", distance: "160km", elevationGain: "0m", time: "8-9 hrs", altitude: 900 },
+            { day: 2, title: "Trek to Jagat", description: "Walk through lush landscapes and across suspension bridges. Enter the restricted area at the beautiful stone-paved village of Jagat.", distance: "13km", elevationGain: "+400m", time: "6 hrs", altitude: 1340 },
+            { day: 3, title: "Trek to Lokpa", description: "The trail continues along the river before branching off towards the wild entry point of the Tsum Valley at Lokpa village.", distance: "11km", elevationGain: "+600m", time: "6-7 hrs", altitude: 2240 },
+            { day: 4, title: "Trek to Chumling", description: "Descend to the Lungwa Chu River and then climb steeply through pine and rhododendron forests to the lower Tsum village of Chumling.", distance: "9km", elevationGain: "+450m", time: "5-6 hrs", altitude: 2385 },
+            { day: 5, title: "Trek to Chokhangparo", description: "Enter the Upper Tsum Valley. The trail opens up into a fertile valley with views of Ganesh Himal and Himalchuli. Chokhangparo is a village of stone houses and ancient gompas.", distance: "11km", elevationGain: "+620m", time: "6-7 hrs", altitude: 3010 },
+            { day: 6, title: "Trek to Nile", description: "The trail passes through several small Tibetan-style villages and Mani walls. Nile is the last village in the upper Tsum Valley before the climb to Mu Gompa.", distance: "10km", elevationGain: "+350m", time: "5-6 hrs", altitude: 3360 },
+            { day: 7, title: "Mu Gompa & Explore", description: "Hike to Mu Gompa (3,700m), the highest and largest monastery in the Tsum Valley. Explore the surrounding peaks and smaller nunneries in this spiritual sanctuary.", distance: "6km", elevationGain: "+340m", time: "4-5 hrs", altitude: 3700, isRestDay: true, guideTip: "Visit the Dhephyudonma Gompa, one of the oldest in the valley, for a glimpse into ancient Tsumba history." },
+            { day: 8, title: "Trek to Chokhangparo", description: "Begin your descent back through the upper valley, stopping to visit the Rachen Gompa, a significant nunnery in the region.", distance: "12km", elevationGain: "-690m", time: "6 hrs", altitude: 3010 },
+            { day: 9, title: "Trek to Chumling", description: "Continue descending through the stone villages, enjoying the change in scenery as you head back towards the lower valley.", distance: "11km", elevationGain: "-625m", time: "5-6 hrs", altitude: 2385 },
+            { day: 10, title: "Trek to Lokpa", description: "Walk back to the confluence where the Tsum Valley meets the main Manaslu Circuit trail at Lokpa.", distance: "9km", elevationGain: "-145m", time: "5 hrs", altitude: 2240 },
+            { day: 11, title: "Trek to Soti Khola", description: "A long day of descending through the lush forests and waterfalls of the lower Budhi Gandaki gorge.", distance: "15km", elevationGain: "-1500m", time: "7-8 hrs", altitude: 710 },
+            { day: 12, title: "Drive to Kathmandu", description: "Final road journey back to the capital for a well-deserved hot shower and celebratory dinner.", distance: "170km", elevationGain: "0m", time: "8-9 hrs", altitude: 1400 },
+        ]
+    },
+    "nar-phu-valley": {
+        region: "Manaslu",
+        regionSlug: "manaslu-region",
+        duration: "12 Days",
+        maxAltitude: "5,320m",
+        difficulty: "Strenuous",
+        rating: 4.8,
+        reviews: 21,
+        description: "The Nar Phu Valley Trek is an extraordinary journey into one of the most secluded and culturally distinct regions of the Himalayas. Nestled between the massive Annapurna and Manaslu ranges, this trek leads you into high-altitude valleys inhabited by the Nar and Phu people, whose centuries-old Tibetan lifestyle remains remarkably intact. This 12-day expedition traverses ancient stone villages, colorful monasteries, and the formidable Kang La Pass (5,320m), offering a rare glimpse into a 'Living Museum' of the Himalayas that was only opened to visitors in recent decades.",
+        faqs: [
+            { question: "Do I need a special permit for Nar Phu?", answer: "Yes. Nar Phu is a Restricted Area. You require a Restricted Area Permit (RAP), a Manaslu Conservation Area Project (MCAP) permit (if entering from Manaslu), and an Annapurna Conservation Area Project (ACAP) permit. You must be at least two trekkers plus a licensed guide." },
+            { question: "How difficult is the Kang La Pass?", answer: "At 5,320m, the Kang La Pass is a serious high-altitude challenge. The ascent is long and demanding, but the view from the top—looking across to the entire Annapurna range—is absolutely spectacular." },
+            { question: "What is the best time to visit?", answer: "Autumn (September to November) and Spring (March to May) provide the clearest skies and most stable weather. Note that the Kang La Pass can be blocked by early snow in late November." },
+            { question: "What kind of accommodation is available?", answer: "Like the rest of the Manaslu region, Nar Phu has comfortable but simple teahouses. The villages of Nar and Phu offer very authentic lodging experiences, often in traditional stone houses." }
+        ],
+        days: [
+            { day: 1, title: "Drive Kathmandu to Machha Khola", description: "A long, scenic drive through the Nepalese countryside, following the Budhi Gandaki River upstream to the start of the trail.", distance: "160km", elevationGain: "0m", time: "8-9 hrs", altitude: 900 },
+            { day: 2, title: "Trek to Jagat", description: "Walk through lush landscapes and across suspension bridges. Enter the restricted area at the beautiful stone-paved village of Jagat.", distance: "13km", elevationGain: "+400m", time: "6 hrs", altitude: 1340 },
+            { day: 3, title: "Trek to Deng", description: "The valley narrows as you continue along the river into Buddhist territory. The terrain becomes more rugged and the views of the Sringi Himal begin to open up.", distance: "15km", elevationGain: "+520m", time: "7 hrs", altitude: 1860 },
+            { day: 4, title: "Trek to Namrung", description: "A steady climb into the upper Budhi Gandaki valley. You'll pass through bamboo forests and reach Namrung, which offers great views of Ganesh Himal.", distance: "14km", elevationGain: "+800m", time: "6 hrs", altitude: 2660 },
+            { day: 5, title: "Trek to Koto", description: "Descend from the high Manaslu trail and connect towards the entry point of the Nar Phu valley at Koto, near the village of Chame.", distance: "16km", elevationGain: "-600m", time: "7 hrs", altitude: 2600 },
+            { day: 6, title: "Trek to Meta", description: "Leave the main circuit and enter the narrow Nar Khola gorge. The trail climbs through pine forests and past waterfalls until you emerge at the semi-permanent settlement of Meta.", distance: "14km", elevationGain: "+960m", time: "7-8 hrs", altitude: 3560 },
+            { day: 7, title: "Trek to Phu Village", description: "A spectacular walk through a wide, arid valley. You'll pass ancient 'Khampa' settlements and cross several high bridges before arriving at the medieval walled village of Phu.", distance: "12km", elevationGain: "+520m", time: "6 hrs", altitude: 4080 },
+            { day: 8, title: "Explore Phu Village", description: "Acclimatize and explore the ancient Tashi Lhakhang Gompa. Walk to the high summer pastures for views of Himlung Himal and the Tibetan border.", distance: "5km", elevationGain: "+300m", time: "4 hrs", altitude: 4080, isRestDay: true, guideTip: "Visit the Samdu Choling Gompa for a truly authentic look at how the Phu people have practiced Buddhism for centuries." },
+            { day: 9, title: "Trek to Nar Village", description: "Descend from Phu and cross the river at Mahendra Pul, then climb steeply to the village of Nar, known for its extensive Mani walls and high-altitude farming.", distance: "15km", elevationGain: "+120m", time: "7-8 hrs", altitude: 4110 },
+            { day: 10, title: "Cross Kang La Pass (5,320m) and Trek to Ngawal", description: "A long, challenging day crossing the high pass. From the summit, enjoy an unbroken panorama of the Annapurna massif before descending into the village of Ngawal.", distance: "16km", elevationGain: "+1210m", time: "9-10 hrs", altitude: 3660, guideTip: "The descent from Kang La is very steep on loose scree; take it slow and use your poles for stability." },
+            { day: 11, title: "Trek to Pisang & Drive to Besisahar", description: "An easy downhill walk through the upper Manang valley to Pisang, where a vehicle awaits to take you back down towards Besisahar.", distance: "11km", elevationGain: "-460m", time: "4-5 hrs", altitude: 3200 },
+            { day: 12, title: "Drive to Kathmandu", description: "The final stretch of your journey, a scenic drive back to the bustling capital for a well-earned rest and celebration.", distance: "180km", elevationGain: "0m", time: "8-9 hrs", altitude: 1400 },
+        ]
+    },
     "three-passes": {
         region: "Everest",
         regionSlug: "everest-region",
@@ -389,7 +449,7 @@ export default async function ItineraryPage({ params }: { params: Promise<{ slug
                 </div>
             </div>
 
-            {['ebc-trek', 'gokyo-lakes', 'three-passes', 'annapurna-circuit', 'abc-trek', 'mardi-himal', 'poon-hill', 'manaslu-circuit', 'larke-pass-trek', 'langtang-valley-trek', 'gosainkunda-trek'].includes(slug || '') && <TrustStrip />}
+            {['ebc-trek', 'gokyo-lakes', 'three-passes', 'annapurna-circuit', 'abc-trek', 'mardi-himal', 'poon-hill', 'manaslu-circuit', 'larke-pass-trek', 'tsum-valley', 'nar-phu-valley', 'langtang-valley-trek', 'gosainkunda-trek'].includes(slug || '') && <TrustStrip />}
 
             <div className="max-w-7xl mx-auto px-4 md:px-16 mt-12">
                 <ItineraryView
@@ -401,7 +461,7 @@ export default async function ItineraryPage({ params }: { params: Promise<{ slug
                 />
             </div>
 
-            {['ebc-trek', 'gokyo-lakes', 'three-passes', 'annapurna-circuit', 'abc-trek', 'mardi-himal', 'poon-hill', 'manaslu-circuit', 'larke-pass-trek', 'langtang-valley-trek', 'gosainkunda-trek'].includes(slug || '') && <FinalCtaStrip trekName={title} />}
+            {['ebc-trek', 'gokyo-lakes', 'three-passes', 'annapurna-circuit', 'abc-trek', 'mardi-himal', 'poon-hill', 'manaslu-circuit', 'larke-pass-trek', 'tsum-valley', 'nar-phu-valley', 'langtang-valley-trek', 'gosainkunda-trek'].includes(slug || '') && <FinalCtaStrip trekName={title} />}
         </main>
     );
 }
