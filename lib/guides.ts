@@ -1,3 +1,5 @@
+export type AvailabilityStatus = "AVAILABLE" | "UNAVAILABLE" | "AVAILABLE_SOON";
+
 export interface Guide {
     slug: string;
     name: string;
@@ -19,6 +21,9 @@ export interface Guide {
     kycVerified: boolean;
     photos: string[];
     specializedRoutes: string[];
+    availabilityStatus: AvailabilityStatus;
+    availableFromDate: string | null; // ISO date string, set when AVAILABLE_SOON
+    unavailableDates: string[];       // YYYY-MM-DD strings
 }
 
 export const GUIDES: Guide[] = [
@@ -51,6 +56,9 @@ export const GUIDES: Guide[] = [
             "https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?q=80&w=1200&auto=format&fit=crop",
         ],
         specializedRoutes: ["Annapurna Base Camp", "Poon Hill Trek", "Mardi Himal Trek"],
+        availabilityStatus: "AVAILABLE",
+        availableFromDate: null,
+        unavailableDates: ["2026-04-18", "2026-04-19", "2026-04-20", "2026-05-02", "2026-05-03", "2026-05-04", "2026-05-05", "2026-05-15", "2026-05-16"],
     },
     {
         slug: "siddhartha-shrestha",
@@ -81,6 +89,9 @@ export const GUIDES: Guide[] = [
             "https://images.unsplash.com/photo-1533130061792-64b345e4a833?q=80&w=1200&auto=format&fit=crop",
         ],
         specializedRoutes: ["Annapurna Circuit", "Manaslu Circuit", "Annapurna Base Camp"],
+        availabilityStatus: "AVAILABLE_SOON",
+        availableFromDate: "2026-04-22",
+        unavailableDates: ["2026-04-13", "2026-04-14", "2026-04-15", "2026-04-16", "2026-04-17", "2026-04-18", "2026-04-19", "2026-04-20", "2026-04-21", "2026-05-10", "2026-05-11", "2026-05-12"],
     },
     {
         slug: "chakra-timilsina",
@@ -110,6 +121,9 @@ export const GUIDES: Guide[] = [
             "https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?q=80&w=1200&auto=format&fit=crop",
         ],
         specializedRoutes: ["Annapurna Circuit", "Poon Hill Trek", "Annapurna Base Camp"],
+        availabilityStatus: "AVAILABLE",
+        availableFromDate: null,
+        unavailableDates: ["2026-04-25", "2026-04-26", "2026-04-27", "2026-05-08", "2026-05-09", "2026-05-20", "2026-05-21", "2026-05-22"],
     },
     {
         slug: "jeevan-gurung",
@@ -140,6 +154,9 @@ export const GUIDES: Guide[] = [
             "https://images.unsplash.com/photo-1627814324900-349f2b87640b?q=80&w=1200&auto=format&fit=crop",
         ],
         specializedRoutes: ["Mardi Himal Trek", "Annapurna Circuit", "Manaslu Circuit"],
+        availabilityStatus: "AVAILABLE",
+        availableFromDate: null,
+        unavailableDates: ["2026-04-16", "2026-04-17", "2026-04-28", "2026-04-29", "2026-04-30", "2026-05-14", "2026-05-15"],
     },
     {
         slug: "narendra-paudel",
@@ -169,6 +186,9 @@ export const GUIDES: Guide[] = [
             "https://images.unsplash.com/photo-1521949392237-7977eb0df9b4?q=80&w=1200&auto=format&fit=crop",
         ],
         specializedRoutes: ["Annapurna Base Camp", "Poon Hill Trek"],
+        availabilityStatus: "UNAVAILABLE",
+        availableFromDate: null,
+        unavailableDates: ["2026-04-13", "2026-04-14", "2026-04-15", "2026-04-16", "2026-04-17", "2026-04-18", "2026-04-19", "2026-04-20", "2026-04-21", "2026-04-22", "2026-04-23", "2026-04-24", "2026-04-25", "2026-04-26", "2026-04-27", "2026-04-28", "2026-04-29", "2026-04-30"],
     },
     // --- EVEREST REGION ---
     {
@@ -199,6 +219,9 @@ export const GUIDES: Guide[] = [
             "https://images.unsplash.com/photo-1589133372221-39656da2785d?q=80&w=1200&auto=format&fit=crop",
         ],
         specializedRoutes: ["Everest Base Camp", "Gokyo Lakes & Ri", "Manaslu Circuit"],
+        availabilityStatus: "AVAILABLE",
+        availableFromDate: null,
+        unavailableDates: ["2026-04-20", "2026-04-21", "2026-04-22", "2026-05-06", "2026-05-07", "2026-05-08", "2026-05-18", "2026-05-19", "2026-05-20"],
     },
     {
         slug: "jeevan-pokherel",
@@ -229,6 +252,9 @@ export const GUIDES: Guide[] = [
             "https://images.unsplash.com/photo-1521949392237-7977eb0df9b4?q=80&w=1200&auto=format&fit=crop",
         ],
         specializedRoutes: ["Everest Base Camp", "Gokyo Lakes & Ri", "Everest Three Passes"],
+        availabilityStatus: "AVAILABLE_SOON",
+        availableFromDate: "2026-04-17",
+        unavailableDates: ["2026-04-13", "2026-04-14", "2026-04-15", "2026-04-16", "2026-05-01", "2026-05-02", "2026-05-03", "2026-05-25", "2026-05-26"],
     },
     {
         slug: "nabin-chapai",
@@ -259,6 +285,9 @@ export const GUIDES: Guide[] = [
             "https://images.unsplash.com/photo-1589133372221-39656da2785d?q=80&w=1200&auto=format&fit=crop",
         ],
         specializedRoutes: ["Everest Base Camp", "Annapurna Circuit", "Manaslu Circuit"],
+        availabilityStatus: "AVAILABLE",
+        availableFromDate: null,
+        unavailableDates: ["2026-04-15", "2026-04-16", "2026-04-17", "2026-04-30", "2026-05-01", "2026-05-12", "2026-05-13", "2026-05-14", "2026-05-15"],
     },
     // --- MANASLU REGION ---
     {
@@ -289,6 +318,9 @@ export const GUIDES: Guide[] = [
             "https://images.unsplash.com/photo-1544735716-392fe2489ffa?q=80&w=1200&auto=format&fit=crop",
         ],
         specializedRoutes: ["Manaslu Circuit", "Tsum Valley Trek"],
+        availabilityStatus: "AVAILABLE",
+        availableFromDate: null,
+        unavailableDates: ["2026-04-22", "2026-04-23", "2026-04-24", "2026-05-05", "2026-05-06", "2026-05-07", "2026-05-22", "2026-05-23"],
     },
     {
         slug: "pemba-sherpa",
@@ -318,5 +350,8 @@ export const GUIDES: Guide[] = [
             "https://images.unsplash.com/photo-1627814324900-349f2b87640b?q=80&w=1200&auto=format&fit=crop",
         ],
         specializedRoutes: ["Manaslu Circuit", "Everest Base Camp", "Annapurna Base Camp"],
+        availabilityStatus: "AVAILABLE",
+        availableFromDate: null,
+        unavailableDates: ["2026-04-19", "2026-04-20", "2026-05-03", "2026-05-04", "2026-05-05", "2026-05-17", "2026-05-18", "2026-05-19"],
     },
 ];

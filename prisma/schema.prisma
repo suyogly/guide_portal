@@ -38,6 +38,12 @@ enum BlogCategory {
   GEAR_GUIDE
 }
 
+enum AvailabilityStatus {
+  AVAILABLE
+  UNAVAILABLE
+  AVAILABLE_SOON
+}
+
 // ─────────────────────────────────────────────
 // Guide — core guide profile
 // ─────────────────────────────────────────────
@@ -56,7 +62,11 @@ model Guide {
   ratePerDay      Decimal  @db.Decimal(10, 2)
   gender          Gender
 
-  isVerified      Boolean  @default(false)
+  isVerified          Boolean            @default(false)
+
+  availabilityStatus  AvailabilityStatus @default(AVAILABLE)
+  availableFromDate   DateTime?          // set when status is AVAILABLE_SOON
+  unavailableDates    GuideUnavailableDate[]
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -65,6 +75,16 @@ model Guide {
   photos          GuidePhoto[]
   regions         TrekRegion[] @relation("GuideRegions")
   routes          TrekRoute[]  @relation("GuideRoutes")
+}
+
+// Specific dates a guide is unavailable (booked / blocked)
+model GuideUnavailableDate {
+  id      String   @id @default(cuid())
+  guideId String
+  guide   Guide    @relation(fields: [guideId], references: [id], onDelete: Cascade)
+  date    DateTime @db.Date
+
+  @@unique([guideId, date])
 }
 
 // Languages a guide speaks

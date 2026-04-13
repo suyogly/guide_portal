@@ -16,6 +16,7 @@ import {
     MessageCircle,
 } from "lucide-react";
 import { GUIDES } from "@/lib/guides";
+import GuideAvailabilityChecker from "@/components/GuideAvailabilityChecker";
 
 interface PageProps {
     params: Promise<{ slug: string }>;
@@ -261,61 +262,29 @@ export default async function GuideProfilePage({ params }: PageProps) {
                             )}
                         </div>
 
-                        {/* RIGHT: Sticky sidebar (desktop only full sticky) */}
+                        {/* RIGHT: Sticky sidebar */}
                         <div className="lg:col-span-1">
                             <div className="lg:sticky lg:top-28 space-y-5">
 
                                 {/* Rate card */}
                                 <div className="bg-slate-900 border border-white/10 rounded-2xl p-6">
                                     <p className="uppercase tracking-widest text-xs text-gray-500 font-bold mb-3">Daily Rate</p>
-                                    <div className="flex items-baseline gap-1 mb-1">
+                                    <div className="flex items-baseline gap-1">
                                         <span className="text-5xl font-display font-bold text-white">${guide.ratePerDay}</span>
                                         <span className="text-gray-400 text-sm">/&nbsp;day</span>
                                     </div>
-                                    <p className="text-gray-500 text-xs mb-5">
+                                    <p className="text-gray-500 text-xs mt-1.5">
                                         Paid directly to {firstName}. No agency markup.
                                     </p>
-                                    <a
-                                        href={`mailto:hello@trekguidehub.com?subject=Inquiry for ${guide.name}`}
-                                        className="flex items-center justify-center gap-2 w-full rounded-full bg-nepal-orange px-6 py-3.5 font-semibold text-white shadow-lg shadow-nepal-orange/25 hover:scale-[1.02] hover:-translate-y-0.5 transition-all duration-200 text-sm"
-                                    >
-                                        <MessageCircle className="w-4 h-4" />
-                                        Inquire About {firstName}
-                                    </a>
-                                    <p className="text-center text-gray-600 text-[11px] mt-3">
-                                        We&apos;ll connect you within 24 hours
-                                    </p>
                                 </div>
 
-                                {/* Quick info */}
-                                <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 space-y-3">
-                                    <p className="uppercase tracking-widest text-xs text-gray-500 font-bold">Quick Info</p>
-                                    {[
-                                        { icon: <Trophy className="w-3.5 h-3.5 text-nepal-orange" />, label: "Experience", value: guide.experience },
-                                        { icon: <User className="w-3.5 h-3.5 text-nepal-orange" />, label: "Gender", value: guide.gender },
-                                        { icon: <MapPin className="w-3.5 h-3.5 text-nepal-orange" />, label: "Region", value: guide.region },
-                                        { icon: <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />, label: "Rating", value: `${guide.rating.toFixed(1)} / 5.0` },
-                                        { icon: <ShieldCheck className="w-3.5 h-3.5 text-nepal-orange" />, label: "Verified", value: guide.kycVerified ? "Yes" : "No", accent: guide.kycVerified ? "text-green-400" : "text-gray-500" },
-                                    ].map(({ icon, label, value, accent }) => (
-                                        <div key={label} className="flex items-center justify-between text-sm">
-                                            <span className="text-gray-500 flex items-center gap-2">{icon} {label}</span>
-                                            <span className={`font-semibold ${accent ?? "text-white"}`}>{value}</span>
-                                        </div>
-                                    ))}
-                                </div>
-
-                                {/* Top routes */}
-                                <div className="bg-slate-900 border border-white/10 rounded-2xl p-6">
-                                    <p className="uppercase tracking-widest text-xs text-gray-500 font-bold mb-3">Top Routes</p>
-                                    <div className="space-y-2">
-                                        {guide.specializedRoutes.map((route, i) => (
-                                            <div key={route} className="flex items-center gap-3 bg-white/[0.03] border border-white/5 rounded-xl px-4 py-2.5">
-                                                <span className="text-nepal-orange font-bold text-xs w-4">{i + 1}</span>
-                                                <span className="text-gray-300 text-sm">{route}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
+                                {/* Availability checker */}
+                                <GuideAvailabilityChecker
+                                    guideName={guide.name}
+                                    availabilityStatus={guide.availabilityStatus}
+                                    availableFromDate={guide.availableFromDate}
+                                    unavailableDates={guide.unavailableDates}
+                                />
                             </div>
                         </div>
                     </div>
@@ -343,10 +312,19 @@ export default async function GuideProfilePage({ params }: PageProps) {
             </main>
 
             {/* ── Mobile sticky bottom bar ──────────────────── */}
-            <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-slate-950/95 backdrop-blur-xl border-t border-white/10 px-4 py-3 safe-area-inset-bottom">
+            <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-slate-950/95 backdrop-blur-xl border-t border-white/10 px-4 py-3">
                 <div className="flex items-center gap-3">
                     <div className="flex-1">
-                        <p className="text-gray-500 text-[10px] uppercase tracking-wider font-bold">Daily Rate</p>
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                            <span className={`w-2 h-2 rounded-full shrink-0 ${
+                                guide.availabilityStatus === "AVAILABLE" ? "bg-green-400 animate-pulse" :
+                                guide.availabilityStatus === "UNAVAILABLE" ? "bg-red-400" : "bg-yellow-400"
+                            }`} />
+                            <p className="text-gray-500 text-[10px] uppercase tracking-wider font-bold">
+                                {guide.availabilityStatus === "AVAILABLE" ? "Available" :
+                                 guide.availabilityStatus === "UNAVAILABLE" ? "Unavailable" : "Available Soon"}
+                            </p>
+                        </div>
                         <div className="flex items-baseline gap-0.5">
                             <span className="text-white font-display font-bold text-2xl">${guide.ratePerDay}</span>
                             <span className="text-gray-500 text-xs">/&nbsp;day</span>
@@ -357,7 +335,7 @@ export default async function GuideProfilePage({ params }: PageProps) {
                         className="flex-1 flex items-center justify-center gap-2 rounded-full bg-nepal-orange py-3 font-semibold text-white shadow-lg shadow-nepal-orange/25 text-sm"
                     >
                         <MessageCircle className="w-4 h-4" />
-                        Inquire About {firstName}
+                        Check Availability
                     </a>
                 </div>
             </div>
