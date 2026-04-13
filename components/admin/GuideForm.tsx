@@ -5,8 +5,6 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Plus, X, Save, ChevronDown } from "lucide-react";
 import {
-  getGuides,
-  saveGuides,
   genId,
   toSlug,
   computeAvailability,
@@ -117,33 +115,34 @@ export default function GuideForm({ guideId }: { guideId?: string }) {
   // ── Load existing guide ──
   useEffect(() => {
     if (!guideId) return;
-    const guides = getGuides();
-    const g = guides.find((x) => x.id === guideId);
-    if (!g) return;
-
-    setName(g.name);
-    setSlug(g.slug);
-    setSpecialty(g.specialty);
-    setQuote(g.quote);
-    setDescription(g.description);
-    setGender(g.gender);
-    setRegion(g.region);
-    setImage(g.image);
-    setCoverImage(g.coverImage);
-    setPhotos(g.photos);
-    setExperienceYears(g.experienceYears);
-    setExperience(g.experience);
-    setLicenseNumber(g.licenseNumber);
-    setKycVerified(g.kycVerified);
-    setIsVerified(g.isVerified);
-    setRatePerDay(g.ratePerDay);
-    setRating(g.rating);
-    setUnavailableDates(g.unavailableDates);
-    setAvailabilityStatus(g.availabilityStatus);
-    setAvailableFromDate(g.availableFromDate);
-    setLanguages(g.languages);
-    setTags(g.tags);
-    setSpecializedRoutes(g.specializedRoutes);
+    fetch(`/api/guides/${guideId}`)
+      .then((r) => r.json())
+      .then((g: AdminGuide) => {
+        setName(g.name);
+        setSlug(g.slug);
+        setSpecialty(g.specialty);
+        setQuote(g.quote);
+        setDescription(g.description);
+        setGender(g.gender);
+        setRegion(g.region);
+        setImage(g.image);
+        setCoverImage(g.coverImage);
+        setPhotos(g.photos);
+        setExperienceYears(g.experienceYears);
+        setExperience(g.experience);
+        setLicenseNumber(g.licenseNumber);
+        setKycVerified(g.kycVerified);
+        setIsVerified(g.isVerified);
+        setRatePerDay(g.ratePerDay);
+        setRating(g.rating);
+        setUnavailableDates(g.unavailableDates);
+        setAvailabilityStatus(g.availabilityStatus);
+        setAvailableFromDate(g.availableFromDate);
+        setLanguages(g.languages);
+        setTags(g.tags);
+        setSpecializedRoutes(g.specializedRoutes);
+      })
+      .catch(console.error);
   }, [guideId]);
 
   // ── Availability change from calendar ──
@@ -181,7 +180,7 @@ export default function GuideForm({ guideId }: { guideId?: string }) {
   }
 
   // ── Save ──
-  function handleSave() {
+  async function handleSave() {
     if (!name.trim()) return;
     setSaving(true);
 
@@ -192,7 +191,7 @@ export default function GuideForm({ guideId }: { guideId?: string }) {
 
     const { status, availableFromDate: autoFrom } = computeAvailability(unavailableDates);
 
-    const data: Omit<AdminGuide, "id" | "createdAt"> = {
+    const payload = {
       slug: slug.trim() || toSlug(name),
       name: name.trim(),
       specialty: specialty.trim(),
@@ -219,16 +218,20 @@ export default function GuideForm({ guideId }: { guideId?: string }) {
       fluency,
     };
 
-    const guides = getGuides();
-
-    if (isEditing && guideId) {
-      const updated = guides.map((g) => (g.id === guideId ? { ...g, ...data } : g));
-      saveGuides(updated);
-    } else {
-      saveGuides([{ id: genId(), ...data, createdAt: new Date().toISOString() }, ...guides]);
+    try {
+      const url = isEditing ? `/api/guides/${guideId}` : "/api/guides";
+      const method = isEditing ? "PUT" : "POST";
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error("Save failed");
+      router.push("/admin/guides");
+    } catch (err) {
+      console.error(err);
+      setSaving(false);
     }
-
-    router.push("/admin/guides");
   }
 
   const pageTitle = isEditing ? `Edit — ${name || "Guide"}` : "New Guide";

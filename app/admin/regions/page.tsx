@@ -13,7 +13,7 @@ import {
   Map,
   Search,
 } from "lucide-react";
-import { getRegions, saveRegions, type AdminRegion, type AdminRoute } from "@/lib/admin-store";
+import type { AdminRegion, AdminRoute } from "@/lib/admin-store";
 
 const DIFFICULTY_COLORS: Record<string, string> = {
   EASY: "text-emerald-400 bg-emerald-400/10",
@@ -161,7 +161,12 @@ export default function RegionsPage() {
   const [search, setSearch] = useState("");
   const [deleteTarget, setDeleteTarget] = useState<{ message: string; onConfirm: () => void } | null>(null);
 
-  useEffect(() => { setRegions(getRegions()); }, []);
+  useEffect(() => {
+    fetch("/api/regions")
+      .then((r) => r.json())
+      .then((data) => setRegions(Array.isArray(data) ? data : []))
+      .catch(console.error);
+  }, []);
 
   const filtered = regions.filter(
     (r) =>
@@ -172,10 +177,11 @@ export default function RegionsPage() {
   function handleDeleteRegion(region: AdminRegion) {
     setDeleteTarget({
       message: `Delete "${region.title}" and all its routes? This cannot be undone.`,
-      onConfirm: () => {
-        const updated = regions.filter((r) => r.id !== region.id);
-        saveRegions(updated);
-        setRegions(updated);
+      onConfirm: async () => {
+        try {
+          await fetch(`/api/regions/${region.id}`, { method: "DELETE" });
+          setRegions((prev) => prev.filter((r) => r.id !== region.id));
+        } catch (err) { console.error(err); }
         setDeleteTarget(null);
       },
     });
@@ -187,12 +193,15 @@ export default function RegionsPage() {
     if (!route) return;
     setDeleteTarget({
       message: `Delete route "${route.title}"? This cannot be undone.`,
-      onConfirm: () => {
-        const updated = regions.map((r) =>
-          r.id !== regionId ? r : { ...r, routes: r.routes.filter((rt) => rt.id !== routeId) }
-        );
-        saveRegions(updated);
-        setRegions(updated);
+      onConfirm: async () => {
+        try {
+          await fetch(`/api/regions/${regionId}/routes/${routeId}`, { method: "DELETE" });
+          setRegions((prev) =>
+            prev.map((r) =>
+              r.id !== regionId ? r : { ...r, routes: r.routes.filter((rt) => rt.id !== routeId) }
+            )
+          );
+        } catch (err) { console.error(err); }
         setDeleteTarget(null);
       },
     });

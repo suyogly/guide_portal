@@ -13,13 +13,7 @@ import {
   Clock,
   XCircle,
 } from "lucide-react";
-import {
-  getGuides,
-  getBlogs,
-  getRegions,
-  type AdminGuide,
-  type AdminBlog,
-} from "@/lib/admin-store";
+import type { AdminGuide, AdminBlog } from "@/lib/admin-store";
 
 function StatCard({
   icon: Icon,
@@ -76,13 +70,19 @@ export default function DashboardPage() {
   const [regionCount, setRegionCount] = useState(0);
 
   useEffect(() => {
-    const g = getGuides();
-    const b = getBlogs();
-    const r = getRegions();
-    setGuides(g);
-    setBlogs(b);
-    setRegionCount(r.length);
-    setRouteCount(r.reduce((acc, reg) => acc + reg.routes.length, 0));
+    Promise.all([
+      fetch("/api/guides").then((r) => r.json()),
+      fetch("/api/blogs").then((r) => r.json()),
+      fetch("/api/regions").then((r) => r.json()),
+    ])
+      .then(([g, b, regions]) => {
+        setGuides(Array.isArray(g) ? g : []);
+        setBlogs(Array.isArray(b) ? b : []);
+        const regionArr = Array.isArray(regions) ? regions : [];
+        setRegionCount(regionArr.length);
+        setRouteCount(regionArr.reduce((acc: number, reg: { routes: unknown[] }) => acc + (reg.routes?.length ?? 0), 0));
+      })
+      .catch(console.error);
   }, []);
 
   const availableGuides = guides.filter(

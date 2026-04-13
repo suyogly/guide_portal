@@ -5,11 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Save, Plus, X } from "lucide-react";
 import {
-  getRegions,
-  saveRegions,
   genId,
   toSlug,
-  type AdminRegion,
   type AdminFaq,
 } from "@/lib/admin-store";
 import ImageUpload from "@/components/admin/ImageUpload";
@@ -112,53 +109,46 @@ export default function RegionForm({ regionId }: { regionId?: string }) {
 
   useEffect(() => {
     if (!regionId) return;
-    const r = getRegions().find((x) => x.id === regionId);
-    if (!r) return;
-    setTitle(r.title);
-    setSlug(r.slug);
-    setDescription(r.description);
-    setHeroImage(r.heroImage);
-    setPublishedAt(r.publishedAt.split("T")[0]);
-    setFaqs(r.faqs);
+    fetch(`/api/regions/${regionId}`)
+      .then((r) => r.json())
+      .then((r: { title: string; slug: string; description: string; heroImage: string; publishedAt: string; faqs: AdminFaq[] }) => {
+        setTitle(r.title);
+        setSlug(r.slug);
+        setDescription(r.description);
+        setHeroImage(r.heroImage);
+        setPublishedAt(r.publishedAt ? r.publishedAt.split("T")[0] : new Date().toISOString().split("T")[0]);
+        setFaqs(r.faqs ?? []);
+      })
+      .catch(console.error);
   }, [regionId]);
 
-  function handleSave() {
+  async function handleSave() {
     if (!title.trim()) return;
     setSaving(true);
 
-    const regions = getRegions();
+    const payload = {
+      slug: slug.trim() || toSlug(title),
+      title: title.trim(),
+      description: description.trim(),
+      heroImage,
+      publishedAt,
+      faqs,
+    };
 
-    if (isEditing && regionId) {
-      const updated = regions.map((r) =>
-        r.id === regionId
-          ? {
-              ...r,
-              title: title.trim(),
-              slug: slug.trim() || toSlug(title),
-              description: description.trim(),
-              heroImage,
-              publishedAt,
-              faqs,
-            }
-          : r
-      );
-      saveRegions(updated);
-    } else {
-      const newRegion: AdminRegion = {
-        id: genId(),
-        slug: slug.trim() || toSlug(title),
-        title: title.trim(),
-        description: description.trim(),
-        heroImage,
-        publishedAt,
-        createdAt: new Date().toISOString(),
-        faqs,
-        routes: [],
-      };
-      saveRegions([newRegion, ...regions]);
+    try {
+      const url = isEditing ? `/api/regions/${regionId}` : "/api/regions";
+      const method = isEditing ? "PUT" : "POST";
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error("Save failed");
+      router.push("/admin/regions");
+    } catch (err) {
+      console.error(err);
+      setSaving(false);
     }
-
-    router.push("/admin/regions");
   }
 
   return (

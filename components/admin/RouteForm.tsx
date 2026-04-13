@@ -5,8 +5,6 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Save, Plus, X, ChevronDown } from "lucide-react";
 import {
-  getRegions,
-  saveRegions,
   genId,
   toSlug,
   type AdminRoute,
@@ -189,34 +187,40 @@ export default function RouteForm({
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    const regions = getRegions();
-    const region = regions.find((r) => r.id === regionId);
-    if (!region) return;
-    setRegionTitle(region.title);
+    // Load region title
+    fetch(`/api/regions/${regionId}`)
+      .then((r) => r.json())
+      .then((r: { title: string }) => setRegionTitle(r.title))
+      .catch(console.error);
+
     if (!routeId) return;
-    const route = region.routes.find((rt) => rt.id === routeId);
-    if (!route) return;
-    setTitle(route.title);
-    setSlug(route.slug);
-    setDescription(route.description);
-    setBody(route.body);
-    setCoverImage(route.coverImage);
-    setDifficulty(route.difficulty);
-    setMaxAltitudeM(route.maxAltitudeM);
-    setDurationDays(route.durationDays);
-    setBestSeason(route.bestSeason);
-    setAuthorName(route.authorName);
-    setPublishedAt(route.publishedAt.split("T")[0]);
-    setFaqs(route.faqs);
-    setItinerary(route.itinerary);
+
+    // Load route data for editing
+    fetch(`/api/regions/${regionId}/routes/${routeId}`)
+      .then((r) => r.json())
+      .then((route: AdminRoute) => {
+        setTitle(route.title);
+        setSlug(route.slug);
+        setDescription(route.description);
+        setBody(route.body);
+        setCoverImage(route.coverImage);
+        setDifficulty(route.difficulty);
+        setMaxAltitudeM(route.maxAltitudeM);
+        setDurationDays(route.durationDays);
+        setBestSeason(route.bestSeason);
+        setAuthorName(route.authorName);
+        setPublishedAt(route.publishedAt ? route.publishedAt.split("T")[0] : new Date().toISOString().split("T")[0]);
+        setFaqs(route.faqs ?? []);
+        setItinerary(route.itinerary ?? []);
+      })
+      .catch(console.error);
   }, [regionId, routeId]);
 
-  function handleSave() {
+  async function handleSave() {
     if (!title.trim()) return;
     setSaving(true);
 
-    const routeData: AdminRoute = {
-      id: routeId ?? genId(),
+    const payload = {
       slug: slug.trim() || toSlug(title),
       title: title.trim(),
       description: description.trim(),
@@ -232,16 +236,22 @@ export default function RouteForm({
       itinerary,
     };
 
-    const regions = getRegions();
-    const updated = regions.map((r) => {
-      if (r.id !== regionId) return r;
-      const routes = isEditing
-        ? r.routes.map((rt) => (rt.id === routeId ? routeData : rt))
-        : [routeData, ...r.routes];
-      return { ...r, routes };
-    });
-    saveRegions(updated);
-    router.push("/admin/regions");
+    try {
+      const url = isEditing
+        ? `/api/regions/${regionId}/routes/${routeId}`
+        : `/api/regions/${regionId}/routes`;
+      const method = isEditing ? "PUT" : "POST";
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error("Save failed");
+      router.push("/admin/regions");
+    } catch (err) {
+      console.error(err);
+      setSaving(false);
+    }
   }
 
   return (

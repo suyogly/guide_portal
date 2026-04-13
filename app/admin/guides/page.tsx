@@ -14,11 +14,7 @@ import {
   Shield,
   AlertTriangle,
 } from "lucide-react";
-import {
-  getGuides,
-  saveGuides,
-  type AdminGuide,
-} from "@/lib/admin-store";
+import type { AdminGuide } from "@/lib/admin-store";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -95,7 +91,10 @@ export default function GuidesPage() {
   const [deleteTarget, setDeleteTarget] = useState<AdminGuide | null>(null);
 
   useEffect(() => {
-    setGuides(getGuides());
+    fetch("/api/guides")
+      .then((r) => r.json())
+      .then((data) => setGuides(Array.isArray(data) ? data : []))
+      .catch(console.error);
   }, []);
 
   const filtered = guides.filter(
@@ -105,10 +104,13 @@ export default function GuidesPage() {
       g.region.toLowerCase().includes(search.toLowerCase())
   );
 
-  function handleDelete(guide: AdminGuide) {
-    const updated = guides.filter((g) => g.id !== guide.id);
-    saveGuides(updated);
-    setGuides(updated);
+  async function handleDelete(guide: AdminGuide) {
+    try {
+      await fetch(`/api/guides/${guide.id}`, { method: "DELETE" });
+      setGuides((prev) => prev.filter((g) => g.id !== guide.id));
+    } catch (err) {
+      console.error(err);
+    }
     setDeleteTarget(null);
   }
 

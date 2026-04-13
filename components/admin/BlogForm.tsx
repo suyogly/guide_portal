@@ -5,9 +5,6 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Save, ChevronDown } from "lucide-react";
 import {
-  getBlogs,
-  saveBlogs,
-  genId,
   toSlug,
   type AdminBlog,
 } from "@/lib/admin-store";
@@ -66,23 +63,26 @@ export default function BlogForm({ blogId }: { blogId?: string }) {
 
   useEffect(() => {
     if (!blogId) return;
-    const b = getBlogs().find((x) => x.id === blogId);
-    if (!b) return;
-    setTitle(b.title);
-    setSlug(b.slug);
-    setCategory(b.category);
-    setAuthorName(b.authorName);
-    setPublishedAt(b.publishedAt);
-    setCoverImage(b.coverImage);
-    setExcerpt(b.excerpt);
-    setContent(b.content);
+    fetch(`/api/blogs/${blogId}`)
+      .then((r) => r.json())
+      .then((b: AdminBlog) => {
+        setTitle(b.title);
+        setSlug(b.slug);
+        setCategory(b.category);
+        setAuthorName(b.authorName);
+        setPublishedAt(b.publishedAt);
+        setCoverImage(b.coverImage);
+        setExcerpt(b.excerpt);
+        setContent(b.content);
+      })
+      .catch(console.error);
   }, [blogId]);
 
-  function handleSave() {
+  async function handleSave() {
     if (!title.trim()) return;
     setSaving(true);
 
-    const data: Omit<AdminBlog, "id" | "createdAt"> = {
+    const payload = {
       slug: slug.trim() || toSlug(title),
       title: title.trim(),
       category,
@@ -93,13 +93,20 @@ export default function BlogForm({ blogId }: { blogId?: string }) {
       content: content.trim(),
     };
 
-    const blogs = getBlogs();
-    if (isEditing && blogId) {
-      saveBlogs(blogs.map((b) => (b.id === blogId ? { ...b, ...data } : b)));
-    } else {
-      saveBlogs([{ id: genId(), ...data, createdAt: new Date().toISOString() }, ...blogs]);
+    try {
+      const url = isEditing ? `/api/blogs/${blogId}` : "/api/blogs";
+      const method = isEditing ? "PUT" : "POST";
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error("Save failed");
+      router.push("/admin/blogs");
+    } catch (err) {
+      console.error(err);
+      setSaving(false);
     }
-    router.push("/admin/blogs");
   }
 
   return (

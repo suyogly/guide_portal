@@ -10,7 +10,7 @@ import {
   AlertTriangle,
   FileText,
 } from "lucide-react";
-import { getBlogs, saveBlogs, type AdminBlog } from "@/lib/admin-store";
+import type { AdminBlog } from "@/lib/admin-store";
 
 const CATEGORIES = [
   { value: "TREKKING_TIPS", label: "Trekking Tips" },
@@ -65,7 +65,12 @@ export default function BlogsPage() {
   const [search, setSearch] = useState("");
   const [deleteTarget, setDeleteTarget] = useState<AdminBlog | null>(null);
 
-  useEffect(() => { setBlogs(getBlogs()); }, []);
+  useEffect(() => {
+    fetch("/api/blogs")
+      .then((r) => r.json())
+      .then((data) => setBlogs(Array.isArray(data) ? data : []))
+      .catch(console.error);
+  }, []);
 
   const filtered = blogs.filter(
     (b) =>
@@ -74,10 +79,13 @@ export default function BlogsPage() {
       b.category.toLowerCase().includes(search.toLowerCase())
   );
 
-  function handleDelete(blog: AdminBlog) {
-    const updated = blogs.filter((b) => b.id !== blog.id);
-    saveBlogs(updated);
-    setBlogs(updated);
+  async function handleDelete(blog: AdminBlog) {
+    try {
+      await fetch(`/api/blogs/${blog.id}`, { method: "DELETE" });
+      setBlogs((prev) => prev.filter((b) => b.id !== blog.id));
+    } catch (err) {
+      console.error(err);
+    }
     setDeleteTarget(null);
   }
 
