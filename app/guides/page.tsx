@@ -5,13 +5,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { BadgeCheck, Star, Loader2, SearchX, MapPin, Globe, Trophy } from "lucide-react";
 import { GUIDES } from "@/lib/guides";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-
 import GuideConnectSidebar from "@/components/GuideConnectSidebar";
 import { useSearchParams } from "next/navigation";
 
-function GuideCard({ guide }: { guide: any }) {
+function GuideCard({ guide }: { guide: (typeof GUIDES)[number] }) {
     return (
         <div className="group bg-slate-900 border border-white/5 rounded-[2rem] overflow-hidden hover:border-nepal-orange/30 transition-all duration-500 hover:shadow-[0_0_50px_rgba(255,107,0,0.1)] flex flex-col h-full">
             <div className="relative h-64 overflow-hidden">
@@ -31,9 +28,11 @@ function GuideCard({ guide }: { guide: any }) {
 
                 {/* Status Badges */}
                 <div className="absolute bottom-4 left-4 flex flex-wrap gap-2">
-                    <span className="bg-green-500/20 text-green-400 border border-green-500/20 px-2.5 py-1 rounded-full text-[9px] font-bold flex items-center gap-1 uppercase tracking-wider backdrop-blur-md">
-                        <BadgeCheck className="w-3 h-3" /> Licensed
-                    </span>
+                    {guide.kycVerified && (
+                        <span className="bg-green-500/20 text-green-400 border border-green-500/20 px-2.5 py-1 rounded-full text-[9px] font-bold flex items-center gap-1 uppercase tracking-wider backdrop-blur-md">
+                            <BadgeCheck className="w-3 h-3" /> Licensed
+                        </span>
+                    )}
                 </div>
             </div>
 
@@ -78,10 +77,13 @@ function GuideCard({ guide }: { guide: any }) {
                     </div>
                 </div>
 
-                {/* CTA */}
-                <Link href="/find-guide" className="mt-6 w-full bg-white/5 hover:bg-nepal-orange text-white border border-white/10 hover:border-nepal-orange py-3.5 rounded-xl font-bold transition-all duration-300 flex items-center justify-center gap-2 group/btn text-sm">
-                    Connect With {guide.name.split(' ')[0]}
-                    <span className="group-hover:translate-x-1 transition-transform">→</span>
+                {/* CTA → profile page */}
+                <Link
+                    href={`/guides/${guide.slug}`}
+                    className="mt-6 w-full bg-white/5 hover:bg-nepal-orange text-white border border-white/10 hover:border-nepal-orange py-3.5 rounded-xl font-bold transition-all duration-300 flex items-center justify-center gap-2 group/btn text-sm"
+                >
+                    View {guide.name.split(" ")[0]}&apos;s Profile
+                    <span className="group-hover/btn:translate-x-1 transition-transform">→</span>
                 </Link>
             </div>
         </div>
@@ -109,15 +111,15 @@ function GuidesContent() {
 
     return (
         <main className="min-h-screen bg-slate-950 text-white">
-            <Navbar />
 
             {/* Hero Section */}
-            <section className="relative pt-40 pb-20 px-4 overflow-hidden">
+            <section className="relative pt-32 pb-20 px-4 overflow-hidden">
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[600px] bg-nepal-orange/10 blur-[120px] rounded-full -z-10 opacity-30"></div>
-
                 <div className="max-w-7xl mx-auto text-center">
                     <span className="text-nepal-orange font-bold tracking-[0.3em] uppercase text-sm mb-6 block">Our Vetted Partners</span>
-                    <h1 className="text-6xl md:text-8xl font-display font-bold mb-8 tracking-tight">Meet the <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500">Locals</span></h1>
+                    <h1 className="text-6xl md:text-8xl font-display font-bold mb-8 tracking-tight">
+                        Meet the <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500">Locals</span>
+                    </h1>
                     <p className="text-gray-400 text-xl max-w-2xl mx-auto leading-relaxed">
                         Solo travelers often worry about being alone with a stranger. We only work with vetted, professional guides who become your partners on the trail.
                     </p>
@@ -153,7 +155,7 @@ function GuidesContent() {
                             {filteredGuides.length > 0 ? (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     {filteredGuides.map(guide => (
-                                        <GuideCard key={guide.name} guide={guide} />
+                                        <GuideCard key={guide.slug} guide={guide} />
                                     ))}
                                 </div>
                             ) : (
@@ -172,15 +174,17 @@ function GuidesContent() {
                     </div>
                 </div>
             </section>
-
-            <Footer />
         </main>
     );
 }
 
 export default function GuideLandingPage() {
     return (
-        <Suspense fallback={<div className="min-h-screen bg-slate-950 flex items-center justify-center"><Loader2 className="w-12 h-12 text-nepal-orange animate-spin" /></div>}>
+        <Suspense fallback={
+            <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+                <Loader2 className="w-12 h-12 text-nepal-orange animate-spin" />
+            </div>
+        }>
             <GuidesContent />
         </Suspense>
     );

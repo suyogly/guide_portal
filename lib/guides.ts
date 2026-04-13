@@ -1,141 +1,322 @@
 export interface Guide {
+    slug: string;
     name: string;
     image: string;
+    avatar?: string;
     experience: string;
+    experienceYears: number;
     specialty: string;
     quote: string;
+    description: string;
     rating: number;
     fluency: string;
+    languages: { language: string; proficiency: "Native" | "Fluent" | "Basic" }[];
     tags: string[];
     region: string;
     gender: "Male Guide" | "Female Guide";
+    ratePerDay: number;
+    licenseNumber: string | null;
+    kycVerified: boolean;
+    photos: string[];
+    specializedRoutes: string[];
 }
 
 export const GUIDES: Guide[] = [
-    // --- EVEREST REGION ---
     // --- ANNAPURNA REGION ---
     {
+        slug: "tulasi-ram-paudel",
         name: "Tulasi Ram Paudel",
         image: "/guides/tulasi-ram-paudel.png",
         experience: "15+ Years",
+        experienceYears: 15,
         specialty: "Trek/Tour/Birding Guide",
         quote: "Professional freelancer trek/tour/birding guide in Pokhara, Nepal",
+        description: "Tulasi is one of the most experienced freelance trekking and birding guides based in Pokhara. With over 15 years on the trails of the Annapurna region, he has led hundreds of groups through the ABC, Poon Hill, and Mardi Himal circuits. His deep knowledge of Himalayan birds makes him the go-to guide for naturalists and birdwatchers visiting Nepal.",
         rating: 5.0,
         fluency: "🇬🇧 Fluent, 🇳🇵 Native",
+        languages: [
+            { language: "English", proficiency: "Fluent" },
+            { language: "Nepali", proficiency: "Native" },
+        ],
         tags: ["Birding Expert", "Trek & Tour"],
         region: "Annapurna Region",
-        gender: "Male Guide"
+        gender: "Male Guide",
+        ratePerDay: 30,
+        licenseNumber: null,
+        kycVerified: true,
+        photos: [
+            "https://images.unsplash.com/photo-1627814324900-349f2b87640b?q=80&w=1200&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1589133372221-39656da2785d?q=80&w=1200&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1521949392237-7977eb0df9b4?q=80&w=1200&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?q=80&w=1200&auto=format&fit=crop",
+        ],
+        specializedRoutes: ["Annapurna Base Camp", "Poon Hill Trek", "Mardi Himal Trek"],
     },
     {
-        name: "Meleena Basnet",
-        image: "/guides/meleena-basnet.jpg",
-        experience: "10+ Years",
-        specialty: "Multi-Region Expert",
-        quote: "From Everest to Manaslu, I make every high-altitude journey unforgettable.",
-        rating: 4.9,
-        fluency: "🇬🇧 Fluent, 🇳🇵 Native",
-        tags: ["Lic. #22522", "EBC & Gokyo", "Manaslu Circuit"],
-        region: "Everest Region",
-        gender: "Female Guide"
-    },
-
-    {
-        name: "Jeevan Pokherel",
-        image: "/guides/jeevan-pokherel.jpg",
-        experience: "10+ Years",
-        specialty: "Everest Base Camp",
-        quote: "Every step is an adventure, and safety is my priority.",
-        rating: 4.9,
-        fluency: "🇬🇧 Fluent, 🇮🇳 Fluent",
-        tags: ["Trekking Expert", "Familiar"],
-        region: "Everest Region",
-        gender: "Male Guide"
-    },
-    {
+        slug: "siddhartha-shrestha",
         name: "Siddhartha Shrestha",
         image: "/guides/siddhartha-shrestha.jpg",
         experience: "12 Years",
+        experienceYears: 12,
         specialty: "Annapurna & Manaslu Specialist",
         quote: "Leading the way with local expertise and heart in the Himalayas.",
+        description: "Siddhartha has spent 12 years guiding trekkers through some of Nepal's most demanding high-altitude routes. A certified NTB guide specialising in the Annapurna and Manaslu circuits, he is known for his meticulous acclimatisation protocols and his ability to make every trekker feel safe on the trail. He is fluent in English and Hindi and has guided groups from over 30 countries.",
         rating: 5.0,
         fluency: "🇬🇧 English, 🇮🇳 Hindi",
+        languages: [
+            { language: "English", proficiency: "Fluent" },
+            { language: "Hindi", proficiency: "Fluent" },
+            { language: "Nepali", proficiency: "Native" },
+        ],
         tags: ["Lic. #2048", "Annapurna Expert", "Manaslu Specialist"],
         region: "Annapurna Region",
-        gender: "Male Guide"
-    },
-    // --- MANASLU REGION ---
-    {
-        name: "Eka Devi Mainali",
-        image: "/guides/eka-devi-mainali.jpg",
-        experience: "10+ Years",
-        specialty: "Manaslu & Tsum Valley",
-        quote: "Girls Power",
-        rating: 5.0,
-        fluency: "🇬🇧 English",
-        tags: ["Lic. #12345", "Manaslu Specialist", "Manaslu & Tsum Valley Expert"],
-        region: "Manaslu Region",
-        gender: "Female Guide"
+        gender: "Male Guide",
+        ratePerDay: 35,
+        licenseNumber: "NTB-2048",
+        kycVerified: true,
+        photos: [
+            "https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?q=80&w=1200&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1544735716-392fe2489ffa?q=80&w=1200&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1627814324900-349f2b87640b?q=80&w=1200&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1533130061792-64b345e4a833?q=80&w=1200&auto=format&fit=crop",
+        ],
+        specializedRoutes: ["Annapurna Circuit", "Manaslu Circuit", "Annapurna Base Camp"],
     },
     {
+        slug: "chakra-timilsina",
         name: "Chakra Timilsina",
         image: "/guides/chakra-timilsina.jpg",
-        experience: "6+ years",
+        experience: "6+ Years",
+        experienceYears: 6,
         specialty: "Annapurna Region Specialist",
         quote: "Exploring the heart of the Annapurna with local expertise.",
+        description: "Born and raised in a village near the Annapurna foothills, Chakra brings genuine local knowledge to every trek. His 6+ years of guiding experience span the full range of Annapurna trails — from the short Poon Hill escape to the demanding full circuit. He is a licensed NTB guide and an advocate for responsible trekking that supports local teahouse communities.",
         rating: 5.0,
         fluency: "🇬🇧 English, 🇳🇵 Nepali",
+        languages: [
+            { language: "English", proficiency: "Fluent" },
+            { language: "Nepali", proficiency: "Native" },
+        ],
         tags: ["Lic. #1270", "Annapurna Expert", "Local Guide"],
         region: "Annapurna Region",
-        gender: "Male Guide"
+        gender: "Male Guide",
+        ratePerDay: 28,
+        licenseNumber: "NTB-1270",
+        kycVerified: true,
+        photos: [
+            "https://images.unsplash.com/photo-1521949392237-7977eb0df9b4?q=80&w=1200&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1627814324900-349f2b87640b?q=80&w=1200&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1589133372221-39656da2785d?q=80&w=1200&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?q=80&w=1200&auto=format&fit=crop",
+        ],
+        specializedRoutes: ["Annapurna Circuit", "Poon Hill Trek", "Annapurna Base Camp"],
     },
-    // --- LANGTANG REGION ---
     {
+        slug: "jeevan-gurung",
         name: "Jeevan Gurung",
         image: "/guides/jeevan-gurung.jpg",
-        experience: "2+ years",
+        experience: "2+ Years",
+        experienceYears: 2,
         specialty: "Annapurna & Manaslu Specialist",
         quote: "Guiding you through the diverse landscapes of Annapurna and Manaslu.",
+        description: "A rising talent among Nepal's young generation of certified guides, Jeevan brings fresh energy and a passion for high-altitude adventures. His specialties include the Mardi Himal, Annapurna, and Manaslu circuits. Despite his relatively short career, he has already completed over 40 guided treks and earned a reputation for exceptional hospitality and a genuine care for trekker wellbeing.",
         rating: 4.9,
         fluency: "🇬🇧 English, 🇮🇳 Hindi",
+        languages: [
+            { language: "English", proficiency: "Fluent" },
+            { language: "Hindi", proficiency: "Fluent" },
+            { language: "Nepali", proficiency: "Native" },
+        ],
         tags: ["Lic. #2413", "Annapurna Expert", "Manaslu Specialist", "Mardi Himal"],
         region: "Annapurna Region",
-        gender: "Male Guide"
+        gender: "Male Guide",
+        ratePerDay: 25,
+        licenseNumber: "NTB-2413",
+        kycVerified: true,
+        photos: [
+            "https://images.unsplash.com/photo-1533130061792-64b345e4a833?q=80&w=1200&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1521949392237-7977eb0df9b4?q=80&w=1200&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1544735716-392fe2489ffa?q=80&w=1200&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1627814324900-349f2b87640b?q=80&w=1200&auto=format&fit=crop",
+        ],
+        specializedRoutes: ["Mardi Himal Trek", "Annapurna Circuit", "Manaslu Circuit"],
     },
     {
-        name: "Nabin Chapai",
-        image: "/guides/nabin-chapai.jpg",
-        experience: "12 Years",
-        specialty: "Multi-Region Specialist",
-        quote: "From the heights of Everest to the trails of Langtang, the mountains are my home.",
-        rating: 5.0,
-        fluency: "🇬🇧 English, 🇰🇷 Korean (Basic)",
-        tags: ["Lic. #1015", "Everest Expert", "Annapurna Expert", "Makalu", "Manaslu"],
-        region: "Everest Region",
-        gender: "Male Guide"
-    },
-    // --- WESTERN REGION ---
-    {
+        slug: "narendra-paudel",
         name: "Narendra Paudel",
         image: "/guides/narendra-paudel.jpg",
         experience: "5+ Years",
+        experienceYears: 5,
         specialty: "ABC & Poonhill Specialist",
         quote: "Mountains are not just destinations, they are a way of life.",
+        description: "Narendra has built his career guiding trekkers along the most beloved short and mid-length Annapurna routes. His specialties — ABC and Poon Hill — are among the most popular treks in Nepal, and his calm, patient style makes him an ideal guide for first-time trekkers and families. He is licensed and KYC-verified on the TrekGuide Hub platform.",
         rating: 5.0,
         fluency: "🇬🇧 English",
+        languages: [
+            { language: "English", proficiency: "Fluent" },
+            { language: "Nepali", proficiency: "Native" },
+        ],
         tags: ["Lic. #1243", "ABC Trek", "Poonhill Trek"],
         region: "Annapurna Region",
-        gender: "Male Guide"
+        gender: "Male Guide",
+        ratePerDay: 27,
+        licenseNumber: "NTB-1243",
+        kycVerified: true,
+        photos: [
+            "https://images.unsplash.com/photo-1589133372221-39656da2785d?q=80&w=1200&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?q=80&w=1200&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1533130061792-64b345e4a833?q=80&w=1200&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1521949392237-7977eb0df9b4?q=80&w=1200&auto=format&fit=crop",
+        ],
+        specializedRoutes: ["Annapurna Base Camp", "Poon Hill Trek"],
+    },
+    // --- EVEREST REGION ---
+    {
+        slug: "meleena-basnet",
+        name: "Meleena Basnet",
+        image: "/guides/meleena-basnet.jpg",
+        experience: "10+ Years",
+        experienceYears: 10,
+        specialty: "Multi-Region Expert",
+        quote: "From Everest to Manaslu, I make every high-altitude journey unforgettable.",
+        description: "Meleena is one of Nepal's most accomplished female high-altitude guides, with a decade of experience spanning the Everest, Gokyo, and Manaslu regions. A trailblazer for women in the trekking industry, she leads with confidence and precision at extreme altitudes. Her deep understanding of altitude sickness symptoms and emergency protocols has saved multiple lives on the trail.",
+        rating: 4.9,
+        fluency: "🇬🇧 Fluent, 🇳🇵 Native",
+        languages: [
+            { language: "English", proficiency: "Fluent" },
+            { language: "Nepali", proficiency: "Native" },
+        ],
+        tags: ["Lic. #22522", "EBC & Gokyo", "Manaslu Circuit"],
+        region: "Everest Region",
+        gender: "Female Guide",
+        ratePerDay: 35,
+        licenseNumber: "NTB-22522",
+        kycVerified: true,
+        photos: [
+            "https://images.unsplash.com/photo-1544735716-392fe2489ffa?q=80&w=1200&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1533130061792-64b345e4a833?q=80&w=1200&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?q=80&w=1200&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1589133372221-39656da2785d?q=80&w=1200&auto=format&fit=crop",
+        ],
+        specializedRoutes: ["Everest Base Camp", "Gokyo Lakes & Ri", "Manaslu Circuit"],
     },
     {
+        slug: "jeevan-pokherel",
+        name: "Jeevan Pokherel",
+        image: "/guides/jeevan-pokherel.jpg",
+        experience: "10+ Years",
+        experienceYears: 10,
+        specialty: "Everest Base Camp",
+        quote: "Every step is an adventure, and safety is my priority.",
+        description: "Jeevan has guided over 80 Everest Base Camp expeditions and is widely regarded as one of the most reliable guides in the Khumbu region. His safety-first philosophy, combined with a deep knowledge of Sherpa culture and Buddhist monasteries along the route, creates a truly immersive experience for trekkers. He is fully licensed and has completed advanced wilderness first-aid training.",
+        rating: 4.9,
+        fluency: "🇬🇧 Fluent, 🇮🇳 Fluent",
+        languages: [
+            { language: "English", proficiency: "Fluent" },
+            { language: "Hindi", proficiency: "Fluent" },
+            { language: "Nepali", proficiency: "Native" },
+        ],
+        tags: ["Trekking Expert", "Familiar"],
+        region: "Everest Region",
+        gender: "Male Guide",
+        ratePerDay: 32,
+        licenseNumber: null,
+        kycVerified: true,
+        photos: [
+            "https://images.unsplash.com/photo-1533130061792-64b345e4a833?q=80&w=1200&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1544735716-392fe2489ffa?q=80&w=1200&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1627814324900-349f2b87640b?q=80&w=1200&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1521949392237-7977eb0df9b4?q=80&w=1200&auto=format&fit=crop",
+        ],
+        specializedRoutes: ["Everest Base Camp", "Gokyo Lakes & Ri", "Everest Three Passes"],
+    },
+    {
+        slug: "nabin-chapai",
+        name: "Nabin Chapai",
+        image: "/guides/nabin-chapai.jpg",
+        experience: "12 Years",
+        experienceYears: 12,
+        specialty: "Multi-Region Specialist",
+        quote: "From the heights of Everest to the trails of Langtang, the mountains are my home.",
+        description: "Nabin is a seasoned multi-region specialist with 12 years of experience across Everest, Annapurna, Makalu, and Manaslu. He is one of the few guides on the platform who holds experience with all four major trekking regions, making him the ideal choice for repeat trekkers looking for a new challenge each season. His additional Korean language skills open doors with an increasingly popular demographic of visitors.",
+        rating: 5.0,
+        fluency: "🇬🇧 English, 🇰🇷 Korean (Basic)",
+        languages: [
+            { language: "English", proficiency: "Fluent" },
+            { language: "Korean", proficiency: "Basic" },
+            { language: "Nepali", proficiency: "Native" },
+        ],
+        tags: ["Lic. #1015", "Everest Expert", "Annapurna Expert", "Makalu", "Manaslu"],
+        region: "Everest Region",
+        gender: "Male Guide",
+        ratePerDay: 35,
+        licenseNumber: "NTB-1015",
+        kycVerified: true,
+        photos: [
+            "https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?q=80&w=1200&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1544735716-392fe2489ffa?q=80&w=1200&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1533130061792-64b345e4a833?q=80&w=1200&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1589133372221-39656da2785d?q=80&w=1200&auto=format&fit=crop",
+        ],
+        specializedRoutes: ["Everest Base Camp", "Annapurna Circuit", "Manaslu Circuit"],
+    },
+    // --- MANASLU REGION ---
+    {
+        slug: "eka-devi-mainali",
+        name: "Eka Devi Mainali",
+        image: "/guides/eka-devi-mainali.jpg",
+        experience: "10+ Years",
+        experienceYears: 10,
+        specialty: "Manaslu & Tsum Valley",
+        quote: "Girls Power",
+        description: "Eka Devi is a pioneering female guide who has made the remote Manaslu and Tsum Valley circuit her home turf. With over a decade of experience in one of Nepal's most culturally rich and least-trodden trekking areas, she brings unmatched insight into Tibetan Buddhist culture, local village life, and the raw beauty of the Manaslu range. She is a licensed guide and a passionate advocate for female empowerment in Nepal's trekking industry.",
+        rating: 5.0,
+        fluency: "🇬🇧 English",
+        languages: [
+            { language: "English", proficiency: "Fluent" },
+            { language: "Nepali", proficiency: "Native" },
+        ],
+        tags: ["Lic. #12345", "Manaslu Specialist", "Manaslu & Tsum Valley Expert"],
+        region: "Manaslu Region",
+        gender: "Female Guide",
+        ratePerDay: 32,
+        licenseNumber: "NTB-12345",
+        kycVerified: true,
+        photos: [
+            "https://images.unsplash.com/photo-1589133372221-39656da2785d?q=80&w=1200&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1533130061792-64b345e4a833?q=80&w=1200&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1521949392237-7977eb0df9b4?q=80&w=1200&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1544735716-392fe2489ffa?q=80&w=1200&auto=format&fit=crop",
+        ],
+        specializedRoutes: ["Manaslu Circuit", "Tsum Valley Trek"],
+    },
+    {
+        slug: "pemba-sherpa",
         name: "Pemba Sherpa",
         image: "/guides/pemba-sherpa.jpg",
         experience: "4+ Years",
+        experienceYears: 4,
         specialty: "Multi-Region Trekking Expert",
         quote: "The climb is tough, but the view from the top is worth it.",
+        description: "Pemba is a versatile young guide with Sherpa heritage and a passion for introducing trekkers to the full breadth of Nepal's mountains. In just four years he has guided across Manaslu, Everest, the Annapurna Base Camp, and Western Nepal — an unusually wide range for a guide at his career stage. His Sherpa roots give him a natural ease at altitude and a deep cultural connection to the routes he guides.",
         rating: 5.0,
         fluency: "🇬🇧 English",
+        languages: [
+            { language: "English", proficiency: "Fluent" },
+            { language: "Nepali", proficiency: "Native" },
+        ],
         tags: ["Lic. #716", "Manaslu", "Everest", "ABC", "Western"],
         region: "Manaslu Region",
-        gender: "Male Guide"
-    }
+        gender: "Male Guide",
+        ratePerDay: 28,
+        licenseNumber: "NTB-716",
+        kycVerified: true,
+        photos: [
+            "https://images.unsplash.com/photo-1521949392237-7977eb0df9b4?q=80&w=1200&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1589133372221-39656da2785d?q=80&w=1200&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1544735716-392fe2489ffa?q=80&w=1200&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1627814324900-349f2b87640b?q=80&w=1200&auto=format&fit=crop",
+        ],
+        specializedRoutes: ["Manaslu Circuit", "Everest Base Camp", "Annapurna Base Camp"],
+    },
 ];
