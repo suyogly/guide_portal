@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { BadgeCheck, Star, Loader2, SearchX } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 
@@ -106,9 +107,13 @@ function GuideList() {
 
                                         <div className="flex items-center justify-between text-xs text-gray-500 pt-2">
                                             <span>Exp: {guide.experience}</span>
-                                            <button className="bg-nepal-orange/10 hover:bg-nepal-orange text-nepal-orange hover:text-white border border-nepal-orange/20 px-6 py-2.5 rounded-xl font-bold transition-all duration-300 active:scale-95">
-                                                Request {guide.name.split(' ')[0]}
-                                            </button>
+                                            <Link
+                                                href={`/guides/${guide.slug}`}
+                                                className="group/btn bg-nepal-orange/10 hover:bg-nepal-orange text-nepal-orange hover:text-white border border-nepal-orange/20 px-6 py-2.5 rounded-xl font-bold transition-all duration-300 flex items-center gap-1.5"
+                                            >
+                                                View Profile
+                                                <span className="group-hover/btn:translate-x-1 transition-transform">→</span>
+                                            </Link>
                                         </div>
                                     </div>
                                 </div>

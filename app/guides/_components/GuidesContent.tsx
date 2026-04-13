@@ -3,10 +3,10 @@
 import { useState, useEffect, Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { BadgeCheck, Star, Loader2, SearchX, MapPin, Globe, Trophy } from "lucide-react";
+import { BadgeCheck, Star, Loader2, SearchX, MapPin, Globe, Trophy, X } from "lucide-react";
 import type { Guide } from "@/lib/guides";
 import GuideConnectSidebar from "@/components/GuideConnectSidebar";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 
 function GuideCard({ guide }: { guide: Guide }) {
     return (
@@ -92,10 +92,23 @@ function GuideCard({ guide }: { guide: Guide }) {
 
 const REGIONS = ["All Regions", "Everest Region", "Annapurna Region", "Manaslu Region", "Langtang Region", "Western Region"];
 
+const RATE_LABELS: Record<string, string> = {
+    "25": "≤ $25/day",
+    "30": "≤ $30/day",
+    "35": "≤ $35/day",
+};
+
 function GuidesGrid({ guides }: { guides: Guide[] }) {
+    const router = useRouter();
     const searchParams = useSearchParams();
+
     const regionParam = searchParams.get("region");
-    const [selectedRegion, setSelectedRegion] = useState(regionParam || "All Regions");
+    const qParam = searchParams.get("q") ?? "";
+    const maxRateParam = searchParams.get("maxRate") ?? "";
+
+    const [selectedRegion, setSelectedRegion] = useState(
+        regionParam && REGIONS.includes(regionParam) ? regionParam : "All Regions"
+    );
 
     useEffect(() => {
         if (regionParam && REGIONS.includes(regionParam)) {
@@ -105,19 +118,43 @@ function GuidesGrid({ guides }: { guides: Guide[] }) {
         }
     }, [regionParam]);
 
-    const filteredGuides = selectedRegion === "All Regions"
-        ? guides
-        : guides.filter(g => g.region === selectedRegion);
+    const maxRate = maxRateParam ? parseInt(maxRateParam) : null;
+    const qLower = qParam.toLowerCase();
+
+    const filteredGuides = guides
+        .filter(g => selectedRegion === "All Regions" || g.region === selectedRegion)
+        .filter(g => !maxRate || g.ratePerDay <= maxRate)
+        .filter(g => !qLower || [g.name, g.specialty, ...g.specializedRoutes]
+            .join(" ").toLowerCase().includes(qLower));
+
+    // Build a URL with updated params for region pill clicks
+    const buildRegionUrl = (region: string) => {
+        const p = new URLSearchParams(searchParams.toString());
+        if (region === "All Regions") p.delete("region");
+        else p.set("region", region);
+        return `/guides${p.size ? `?${p.toString()}` : ""}`;
+    };
+
+    const clearParam = (key: string) => {
+        const p = new URLSearchParams(searchParams.toString());
+        p.delete(key);
+        router.push(`/guides${p.size ? `?${p.toString()}` : ""}`);
+    };
+
+    const activeChips: { label: string; key: string }[] = [];
+    if (qParam) activeChips.push({ label: `"${qParam}"`, key: "q" });
+    if (maxRateParam) activeChips.push({ label: RATE_LABELS[maxRateParam] ?? `≤ $${maxRateParam}/day`, key: "maxRate" });
 
     return (
         <>
-            {/* Filter Bar */}
-            <section className="sticky top-20 z-30 bg-slate-950/80 backdrop-blur-md border-y border-white/5 py-6">
-                <div className="max-w-7xl mx-auto px-4">
+            {/* Region Filter Bar */}
+            <section className="sticky top-20 z-30 bg-slate-950/80 backdrop-blur-md border-y border-white/5 py-5">
+                <div className="max-w-7xl mx-auto px-4 space-y-3">
                     <div className="flex flex-wrap items-center justify-center gap-3">
                         {REGIONS.map(region => (
-                            <button
+                            <Link
                                 key={region}
+                                href={buildRegionUrl(region)}
                                 onClick={() => setSelectedRegion(region)}
                                 className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all border ${selectedRegion === region
                                     ? "bg-nepal-orange border-nepal-orange text-white shadow-lg shadow-orange-500/20"
@@ -125,9 +162,34 @@ function GuidesGrid({ guides }: { guides: Guide[] }) {
                                     }`}
                             >
                                 {region}
-                            </button>
+                            </Link>
                         ))}
                     </div>
+
+                    {/* Active filter chips */}
+                    {activeChips.length > 0 && (
+                        <div className="flex flex-wrap items-center justify-center gap-2">
+                            <span className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Filtered by:</span>
+                            {activeChips.map(chip => (
+                                <button
+                                    key={chip.key}
+                                    onClick={() => clearParam(chip.key)}
+                                    className="flex items-center gap-1.5 bg-nepal-orange/10 border border-nepal-orange/20 text-nepal-orange px-3 py-1 rounded-full text-xs font-bold hover:bg-nepal-orange/20 transition-colors"
+                                >
+                                    {chip.label}
+                                    <X className="w-3 h-3" />
+                                </button>
+                            ))}
+                            {activeChips.length > 1 && (
+                                <button
+                                    onClick={() => router.push("/guides")}
+                                    className="text-xs text-gray-500 hover:text-gray-300 underline transition-colors"
+                                >
+                                    Clear all
+                                </button>
+                            )}
+                        </div>
+                    )}
                 </div>
             </section>
 
@@ -147,7 +209,15 @@ function GuidesGrid({ guides }: { guides: Guide[] }) {
                                 <div className="py-40 text-center">
                                     <SearchX className="w-16 h-16 text-gray-600 mx-auto mb-6" />
                                     <h3 className="text-3xl font-display font-bold mb-4">No guides found</h3>
-                                    <p className="text-gray-500">Try selecting a different region.</p>
+                                    <p className="text-gray-500 mb-6">
+                                        Try adjusting your filters or search term.
+                                    </p>
+                                    <button
+                                        onClick={() => router.push("/guides")}
+                                        className="bg-nepal-orange text-white px-8 py-3 rounded-full font-bold hover:bg-orange-600 transition-colors"
+                                    >
+                                        Clear Filters
+                                    </button>
                                 </div>
                             )}
                         </div>

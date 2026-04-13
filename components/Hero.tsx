@@ -1,7 +1,7 @@
 "use client";
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import Link from "next/link";
+import SmartSearch from "./SmartSearch";
 import TrustBadges from "./TrustBadges";
 
 export default function Hero() {
@@ -43,16 +43,9 @@ export default function Hero() {
                     Join a community of like-minded adventurers or find your rhythm with a private guide. The ultimate solo trekking experience in Nepal.
                 </p>
 
-                {/* Destination Search & CTA */}
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8 w-full max-w-2xl mx-auto px-4">
-                    <input
-                        type="text"
-                        placeholder="Where do you want to trek?"
-                        className="w-full sm:flex-1 px-6 py-4 rounded-full bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-nepal-orange backdrop-blur-md"
-                    />
-                    <Link href="/find-guide" className="w-full sm:w-auto px-8 py-4 bg-nepal-orange hover:bg-orange-600 text-white font-bold rounded-full transition-colors whitespace-nowrap shadow-lg shadow-nepal-orange/20 text-center">
-                        Find My Guide
-                    </Link>
+                {/* Smart Search */}
+                <div className="w-full mt-8 px-4">
+                    <SmartSearch />
                 </div>
 
                 <div className="pt-8 space-y-4">
