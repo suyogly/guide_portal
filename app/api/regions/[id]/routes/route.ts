@@ -28,7 +28,7 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
 }
 
 export async function POST(req: NextRequest, { params }: Ctx) {
-  const authErr = requireAdmin(req);
+  const authErr = await requireAdmin();
   if (authErr) return authErr;
   const { id: regionId } = await params;
   try {

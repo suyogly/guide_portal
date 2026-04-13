@@ -29,7 +29,7 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
 }
 
 export async function PUT(req: NextRequest, { params }: Ctx) {
-  const authErr = requireAdmin(req);
+  const authErr = await requireAdmin();
   if (authErr) return authErr;
   const { id } = await params;
   try {
@@ -99,7 +99,7 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
 }
 
 export async function DELETE(req: NextRequest, { params }: Ctx) {
-  const authErr = requireAdmin(req);
+  const authErr = await requireAdmin();
   if (authErr) return authErr;
   const { id } = await params;
   try {

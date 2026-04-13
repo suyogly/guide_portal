@@ -28,7 +28,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const authErr = requireAdmin(req);
+  const authErr = await requireAdmin();
   if (authErr) return authErr;
   try {
     const body = await req.json();
