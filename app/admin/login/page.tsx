@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Mountain, Eye, EyeOff, AlertCircle } from "lucide-react";
-import { ADMIN_EMAIL, ADMIN_PASSWORD, AUTH_KEY } from "@/lib/admin-store";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -13,19 +12,29 @@ export default function AdminLoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     setLoading(true);
-    setTimeout(() => {
-      if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-        localStorage.setItem(AUTH_KEY, "true");
+
+    try {
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (res.ok) {
         router.push("/admin/dashboard");
       } else {
-        setError("Invalid email or password. Please try again.");
+        const data = await res.json();
+        setError(data.error ?? "Invalid email or password. Please try again.");
         setLoading(false);
       }
-    }, 600);
+    } catch {
+      setError("Something went wrong. Please try again.");
+      setLoading(false);
+    }
   }
 
   return (
@@ -66,7 +75,7 @@ export default function AdminLoginPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@gmail.com"
+                placeholder="admin@example.com"
                 required
                 autoComplete="email"
                 className="w-full rounded-xl bg-slate-950 border border-white/10 px-4 py-3 text-white placeholder:text-gray-600 focus:border-nepal-orange focus:ring-1 focus:ring-nepal-orange focus:outline-none transition-colors text-sm"

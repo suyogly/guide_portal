@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import {
@@ -12,7 +12,6 @@ import {
   Menu,
   X,
 } from "lucide-react";
-import { AUTH_KEY } from "@/lib/admin-store";
 
 const NAV_ITEMS = [
   { href: "/admin/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -21,14 +20,14 @@ const NAV_ITEMS = [
   { href: "/admin/regions", icon: Mountain, label: "Trek Regions" },
 ];
 
-function Sidebar({ onClose }: { onClose?: () => void }) {
+function Sidebar({
+  onLogout,
+  onClose,
+}: {
+  onLogout: () => void;
+  onClose?: () => void;
+}) {
   const pathname = usePathname();
-  const router = useRouter();
-
-  function handleLogout() {
-    localStorage.removeItem(AUTH_KEY);
-    router.push("/admin/login");
-  }
 
   return (
     <div className="flex flex-col h-full">
@@ -78,7 +77,7 @@ function Sidebar({ onClose }: { onClose?: () => void }) {
       {/* Logout */}
       <div className="px-3 pb-5 border-t border-white/5 pt-3">
         <button
-          onClick={handleLogout}
+          onClick={onLogout}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-all duration-150"
         >
           <LogOut className="w-4 h-4 shrink-0" />
@@ -96,27 +95,15 @@ export default function AdminLayout({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [mounted, setMounted] = useState(false);
-  const [authed, setAuthed] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-    const auth = localStorage.getItem(AUTH_KEY);
-    if (auth) {
-      setAuthed(true);
-    } else if (pathname !== "/admin/login") {
-      router.replace("/admin/login");
-    }
-  }, [pathname, router]);
+  async function handleLogout() {
+    await fetch("/api/admin/logout", { method: "POST" });
+    router.push("/admin/login");
+  }
 
-  // Prevent hydration flash
-  if (!mounted) return null;
-
-  const isLogin = pathname === "/admin/login";
-
-  // Login page — full screen, no sidebar
-  if (isLogin) {
+  // Login page — full screen, no sidebar; middleware handles auth redirect
+  if (pathname === "/admin/login") {
     return (
       <div className="fixed inset-0 z-[100] bg-slate-950 overflow-auto">
         {children}
@@ -124,14 +111,11 @@ export default function AdminLayout({
     );
   }
 
-  // Not authenticated yet (redirect in progress)
-  if (!authed) return null;
-
   return (
     <div className="fixed inset-0 z-[100] bg-slate-950 flex overflow-hidden">
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex flex-col w-56 shrink-0 bg-slate-900 border-r border-white/5">
-        <Sidebar />
+        <Sidebar onLogout={handleLogout} />
       </aside>
 
       {/* Mobile sidebar overlay */}
@@ -142,7 +126,10 @@ export default function AdminLayout({
             onClick={() => setSidebarOpen(false)}
           />
           <aside className="fixed inset-y-0 left-0 w-56 bg-slate-900 border-r border-white/5 z-40 lg:hidden flex flex-col shadow-2xl">
-            <Sidebar onClose={() => setSidebarOpen(false)} />
+            <Sidebar
+              onLogout={handleLogout}
+              onClose={() => setSidebarOpen(false)}
+            />
           </aside>
         </>
       )}
