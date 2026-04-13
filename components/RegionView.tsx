@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { TrustBadges, ContentHub, Testimonials, FAQSection } from "./RegionRefinements";
 import { EverestGuideRequirement } from "@/components/EverestGuideRequirement";
 import { ManasluGuideRequirement } from "@/components/ManasluGuideRequirement";
+import { AnnapurnaGuideRequirement } from "@/components/AnnapurnaGuideRequirement";
 
 interface TrekOption {
     id: string;
@@ -29,7 +30,8 @@ interface RegionData {
 export default function RegionView({ region }: { region: RegionData }) {
     const isEverest = region.name.toLowerCase().includes("everest");
     const isManaslu = region.name.toLowerCase().includes("manaslu");
-    const article = isEverest ? "an" : "a";
+    const isAnnapurna = region.name.toLowerCase().includes("annapurna");
+    const article = (isEverest || isAnnapurna) ? "an" : "a";
 
     return (
         <div className="space-y-32">
@@ -137,6 +139,9 @@ export default function RegionView({ region }: { region: RegionData }) {
 
             {/* Manaslu Mandate Box */}
             {isManaslu && <ManasluGuideRequirement />}
+
+            {/* Annapurna Mandate Box */}
+            {isAnnapurna && <AnnapurnaGuideRequirement />}
 
             {/* Testimonials Section */}
             <section className="px-4">
