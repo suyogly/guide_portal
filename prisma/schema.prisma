@@ -1,0 +1,207 @@
+// Learn more about Prisma schema: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─────────────────────────────────────────────
+// Enums
+// ─────────────────────────────────────────────
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum LanguageProficiency {
+  NATIVE
+  FLUENT
+  BASIC
+}
+
+enum Difficulty {
+  EASY
+  MODERATE
+  DIFFICULT
+  STRENUOUS
+}
+
+enum BlogCategory {
+  TREKKING_TIPS
+  CULTURE
+  SOLO_TRAVEL
+  GEAR_GUIDE
+}
+
+// ─────────────────────────────────────────────
+// Guide — core guide profile
+// ─────────────────────────────────────────────
+
+model Guide {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  name            String
+  avatar          String?
+  description     String?
+
+  experienceYears Int
+  licenseNumber   String?
+  kycProofUrl     String?
+
+  ratePerDay      Decimal  @db.Decimal(10, 2)
+  gender          Gender
+
+  isVerified      Boolean  @default(false)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  languages       GuideLanguage[]
+  photos          GuidePhoto[]
+  regions         TrekRegion[] @relation("GuideRegions")
+  routes          TrekRoute[]  @relation("GuideRoutes")
+}
+
+// Languages a guide speaks
+model GuideLanguage {
+  id          String              @id @default(cuid())
+  guideId     String
+  guide       Guide               @relation(fields: [guideId], references: [id], onDelete: Cascade)
+
+  language    String
+  proficiency LanguageProficiency @default(FLUENT)
+}
+
+// Gallery photos for a guide profile
+model GuidePhoto {
+  id      String  @id @default(cuid())
+  guideId String
+  guide   Guide   @relation(fields: [guideId], references: [id], onDelete: Cascade)
+
+  url     String
+  caption String?
+  order   Int     @default(0)
+}
+
+// ─────────────────────────────────────────────
+// Trek Region — top-level geographic region
+// ─────────────────────────────────────────────
+
+model TrekRegion {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  title       String
+  description String?
+  heroImage   String?
+
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  routes      TrekRoute[]
+  faqs        RegionFaq[]
+  guides      Guide[]     @relation("GuideRegions")
+}
+
+// ─────────────────────────────────────────────
+// Trek Route — individual trek/itinerary
+// ─────────────────────────────────────────────
+
+model TrekRoute {
+  id           String     @id @default(cuid())
+  slug         String     @unique
+  title        String
+  description  String?
+  body         String?    // rich text / markdown article body
+  coverImage   String?
+
+  regionId     String
+  region       TrekRegion @relation(fields: [regionId], references: [id])
+
+  difficulty   Difficulty
+  maxAltitudeM Int?
+  durationDays Int?
+  bestSeason   String?
+
+  // Seasonal temperature info: { "spring": { min: 5, max: 15 }, ... }
+  temperature  Json?
+
+  authorName   String?
+
+  publishedAt  DateTime?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  itinerary    ItineraryDay[]
+  faqs         RouteFaq[]
+  guides       Guide[]    @relation("GuideRoutes")
+}
+
+// Day-by-day itinerary entry for a trek route
+model ItineraryDay {
+  id             String    @id @default(cuid())
+  routeId        String
+  route          TrekRoute @relation(fields: [routeId], references: [id], onDelete: Cascade)
+
+  dayNumber      Int
+  title          String
+  description    String
+
+  distanceKm     Decimal?  @db.Decimal(6, 2)
+  elevationGainM Int?
+  estimatedTime  String?
+  altitudeM      Int?
+
+  isRestDay      Boolean   @default(false)
+  guideTip       String?
+  flexNote       String?
+}
+
+// ─────────────────────────────────────────────
+// FAQs — scoped separately to region and route
+// ─────────────────────────────────────────────
+
+model RegionFaq {
+  id       String     @id @default(cuid())
+  regionId String
+  region   TrekRegion @relation(fields: [regionId], references: [id], onDelete: Cascade)
+
+  question String
+  answer   String
+  order    Int    @default(0)
+}
+
+model RouteFaq {
+  id       String    @id @default(cuid())
+  routeId  String
+  route    TrekRoute @relation(fields: [routeId], references: [id], onDelete: Cascade)
+
+  question String
+  answer   String
+  order    Int    @default(0)
+}
+
+// ─────────────────────────────────────────────
+// Blog Post — articles and editorial content
+// ─────────────────────────────────────────────
+
+model BlogPost {
+  id          String       @id @default(cuid())
+  slug        String       @unique
+  title       String
+  excerpt     String?
+  content     String
+  category    BlogCategory
+  coverImage  String?
+
+  authorName  String?
+
+  publishedAt DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
