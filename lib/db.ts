@@ -10,7 +10,7 @@ import type {
   GuidePhoto,
   GuideUnavailableDate,
   BlogPost as DBBlog,
-} from "./generated/prisma/client";
+} from "@prisma/client";
 import type { Guide } from "./guides";
 import type { BlogPost } from "@/app/blog/data";
 

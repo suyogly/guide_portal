@@ -2,7 +2,7 @@
  * Initial seed data in Prisma create-input format.
  * Used by POST /api/seed to populate an empty Supabase database.
  */
-import type { Prisma } from "./generated/prisma/client";
+import type { Prisma } from "@prisma/client";
 
 // ─── Guides ───────────────────────────────────────────────────────────────────
 

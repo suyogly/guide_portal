@@ -14,7 +14,7 @@ import type {
   ItineraryDay,
   RegionFaq,
   RouteFaq,
-} from "@/lib/generated/prisma/client";
+} from "@prisma/client";
 
 export type FullGuide = Guide & {
   languages: GuideLanguage[];
