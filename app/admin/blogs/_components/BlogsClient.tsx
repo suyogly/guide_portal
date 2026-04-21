@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Plus, Pencil, Trash2, Search, AlertTriangle, FileText } from "lucide-react";
-import type { AdminBlog } from "@/lib/admin-store";
+import type { AdminBlogListItem } from "@/lib/admin-store";
 
 const CATEGORIES = [
   { value: "TREKKING_TIPS", label: "Trekking Tips" },
@@ -53,10 +53,10 @@ function DeleteModal({
   );
 }
 
-export default function BlogsClient({ initialBlogs }: { initialBlogs: AdminBlog[] }) {
-  const [blogs, setBlogs] = useState<AdminBlog[]>(initialBlogs);
+export default function BlogsClient({ initialBlogs }: { initialBlogs: AdminBlogListItem[] }) {
+  const [blogs, setBlogs] = useState<AdminBlogListItem[]>(initialBlogs);
   const [search, setSearch] = useState("");
-  const [deleteTarget, setDeleteTarget] = useState<AdminBlog | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<AdminBlogListItem | null>(null);
 
   const filtered = blogs.filter(
     (b) =>
@@ -65,7 +65,7 @@ export default function BlogsClient({ initialBlogs }: { initialBlogs: AdminBlog[
       b.category.toLowerCase().includes(search.toLowerCase())
   );
 
-  async function handleDelete(blog: AdminBlog) {
+  async function handleDelete(blog: AdminBlogListItem) {
     try {
       await fetch(`/api/blogs/${blog.id}`, { method: "DELETE" });
       setBlogs((prev) => prev.filter((b) => b.id !== blog.id));
