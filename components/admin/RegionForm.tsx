@@ -241,6 +241,7 @@ export default function RegionForm({ regionId, initialData }: { regionId?: strin
             label="Banner Photo"
             value={heroImage}
             onChange={setHeroImage}
+            folder="regions/hero"
             ratio="21/9"
             ratioLabel="21:9"
             recommendedSize="2100 × 900 px"

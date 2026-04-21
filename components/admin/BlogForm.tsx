@@ -205,6 +205,7 @@ export default function BlogForm({ blogId, initialData }: { blogId?: string; ini
             label="Cover Photo"
             value={coverImage}
             onChange={setCoverImage}
+            folder="blogs/cover"
             ratio="16/9"
             ratioLabel="16:9"
             recommendedSize="1600 × 900 px"

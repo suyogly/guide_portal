@@ -52,11 +52,13 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 // ─── GuideForm ────────────────────────────────────────────────────────────────
 
-async function compressImageForGallery(file: File): Promise<string> {
-  return new Promise((resolve) => {
+async function compressAndUploadGallery(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
     const reader = new FileReader();
+    reader.onerror = () => reject(new Error("FileReader failed"));
     reader.onload = (e) => {
       const img = new Image();
+      img.onerror = () => reject(new Error("Image load failed"));
       img.onload = () => {
         const MAX = 900;
         let { width, height } = img;
@@ -67,7 +69,18 @@ async function compressImageForGallery(file: File): Promise<string> {
         const c = document.createElement("canvas");
         c.width = width; c.height = height;
         c.getContext("2d")!.drawImage(img, 0, 0, width, height);
-        resolve(c.toDataURL("image/jpeg", 0.80));
+        c.toBlob(async (blob) => {
+          if (!blob) { reject(new Error("Canvas toBlob failed")); return; }
+          try {
+            const form = new FormData();
+            form.append("file", blob, `gallery-${Date.now()}.jpg`);
+            form.append("folder", "guides/gallery");
+            const res = await fetch("/api/admin/upload", { method: "POST", body: form });
+            if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
+            const { url } = await res.json() as { url: string };
+            resolve(url);
+          } catch (err) { reject(err); }
+        }, "image/jpeg", 0.80);
       };
       img.src = e.target?.result as string;
     };
@@ -222,8 +235,8 @@ export default function GuideForm({
   async function handleGalleryAdd(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);
     if (!files.length) return;
-    const compressed = await Promise.all(files.map(compressImageForGallery));
-    setPhotos((prev) => [...prev, ...compressed].slice(0, 8));
+    const urls = await Promise.all(files.map(compressAndUploadGallery));
+    setPhotos((prev) => [...prev, ...urls].slice(0, 8));
     e.target.value = "";
   }
   function removePhoto(idx: number) {
@@ -424,6 +437,7 @@ export default function GuideForm({
               label="Profile Photo"
               value={image}
               onChange={setImage}
+              folder="guides/avatar"
               ratio="1/1"
               ratioLabel="1:1"
               recommendedSize="400 × 400 px"
@@ -433,6 +447,7 @@ export default function GuideForm({
               label="Cover / Hero Image"
               value={coverImage}
               onChange={setCoverImage}
+              folder="guides/cover"
               ratio="16/9"
               ratioLabel="16:9"
               recommendedSize="1600 × 900 px"

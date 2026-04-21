@@ -308,7 +308,7 @@ export default function RouteForm({
 
         {/* ── Cover Image ── */}
         <Section title="Cover Image">
-          <ImageUpload label="Route Cover Photo" value={coverImage} onChange={setCoverImage} ratio="16/9" ratioLabel="16:9" recommendedSize="1600 × 900 px" maxPx={1400} />
+          <ImageUpload label="Route Cover Photo" value={coverImage} onChange={setCoverImage} folder="routes/cover" ratio="16/9" ratioLabel="16:9" recommendedSize="1600 × 900 px" maxPx={1400} />
         </Section>
 
         {/* ── Metadata ── */}
