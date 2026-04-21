@@ -13,10 +13,10 @@ function GuideCard({ guide }: { guide: Guide }) {
         <div className="group bg-slate-900 border border-white/5 rounded-[2rem] overflow-hidden hover:border-nepal-orange/30 transition-all duration-500 hover:shadow-[0_0_50px_rgba(255,107,0,0.1)] flex flex-col h-full">
             <div className="relative h-64 overflow-hidden">
                 <Image
-                    src={guide.coverImage}
+                    src={guide.image}
                     alt={guide.name}
                     fill
-                    className="object-cover group-hover:scale-110 transition-transform duration-700"
+                    className="object-cover object-top group-hover:scale-110 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/10 to-transparent" />
 

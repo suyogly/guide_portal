@@ -66,10 +66,10 @@ function GuideList() {
                             <div key={guide.name} className="group bg-slate-950 border border-white/10 rounded-3xl overflow-hidden hover:border-nepal-orange/50 transition-all duration-500 hover:shadow-[0_0_40px_rgba(255,107,0,0.1)]">
                                 <div className="relative h-72 overflow-hidden">
                                     <Image
-                                        src={guide.coverImage}
+                                        src={guide.image}
                                         alt={guide.name}
                                         fill
-                                        className="object-cover group-hover:scale-110 transition-transform duration-700"
+                                        className="object-cover object-top group-hover:scale-110 transition-transform duration-700"
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
                                     <div className="absolute top-4 right-4 bg-slate-900/80 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-xl">
