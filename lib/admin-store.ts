@@ -36,6 +36,14 @@ export interface AdminGuide {
   photos: string[];
   fluency: string;
   createdAt: string;
+  routeRates: {
+    id: string;
+    trekRouteId: string;
+    ratePerDay: number;
+    routeTitle?: string;
+    routeSlug?: string;
+    regionTitle?: string;
+  }[];
 }
 
 export interface AdminBlog {

@@ -7,6 +7,7 @@ import type {
   Guide,
   GuideLanguage,
   GuidePhoto,
+  GuideRouteRate,
   GuideUnavailableDate,
   BlogPost,
   TrekRegion,
@@ -16,10 +17,15 @@ import type {
   RouteFaq,
 } from "@prisma/client";
 
+export type GuideRouteRateWithTrek = GuideRouteRate & {
+  trekRoute: { id: string; slug: string; title: string; region: { title: string } };
+};
+
 export type FullGuide = Guide & {
   languages: GuideLanguage[];
   photos: GuidePhoto[];
   unavailableDates: GuideUnavailableDate[];
+  routeRates: GuideRouteRateWithTrek[];
 };
 
 export type FullRegion = TrekRegion & {
@@ -80,6 +86,14 @@ export function guideToApi(g: FullGuide) {
       .map((p: GuidePhoto) => p.url),
     fluency: g.fluency ?? "",
     createdAt: g.createdAt.toISOString(),
+    routeRates: (g.routeRates ?? []).map((rr) => ({
+      id: rr.id,
+      trekRouteId: rr.trekRouteId,
+      ratePerDay: Number(rr.ratePerDay),
+      routeTitle: rr.trekRoute.title,
+      routeSlug: rr.trekRoute.slug,
+      regionTitle: rr.trekRoute.region.title,
+    })),
   };
 }
 

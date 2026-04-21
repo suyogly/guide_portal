@@ -101,6 +101,11 @@ export default function GuideForm({ guideId }: { guideId?: string }) {
   const [ratePerDay, setRatePerDay] = useState(30);
   const [rating, setRating] = useState(5.0);
 
+  type CatalogTrekRoute = { id: string; slug: string; title: string; regionTitle: string };
+  type RouteRateRow = { id: string; trekRouteId: string; ratePerDay: number };
+  const [catalogRoutes, setCatalogRoutes] = useState<CatalogTrekRoute[]>([]);
+  const [routeRates, setRouteRates] = useState<RouteRateRow[]>([]);
+
   const [unavailableDates, setUnavailableDates] = useState<string[]>([]);
   const [availabilityStatus, setAvailabilityStatus] =
     useState<AdminGuide["availabilityStatus"]>("AVAILABLE");
@@ -111,6 +116,27 @@ export default function GuideForm({ guideId }: { guideId?: string }) {
   const [specializedRoutes, setSpecializedRoutes] = useState("");
 
   const [saving, setSaving] = useState(false);
+
+  // ── Trek route catalog (for per-route pricing) ──
+  useEffect(() => {
+    fetch("/api/trek-routes")
+      .then((r) => r.json())
+      .then(
+        (data: {
+          routes?: { id: string; slug: string; title: string; region: { title: string } }[];
+        }) => {
+          setCatalogRoutes(
+            (data.routes ?? []).map((rt) => ({
+              id: rt.id,
+              slug: rt.slug,
+              title: rt.title,
+              regionTitle: rt.region?.title ?? "",
+            }))
+          );
+        }
+      )
+      .catch(() => setCatalogRoutes([]));
+  }, []);
 
   // ── Load existing guide ──
   useEffect(() => {
@@ -141,6 +167,13 @@ export default function GuideForm({ guideId }: { guideId?: string }) {
         setLanguages(g.languages);
         setTags(g.tags);
         setSpecializedRoutes(g.specializedRoutes);
+        setRouteRates(
+          (g.routeRates ?? []).map((rr) => ({
+            id: rr.id,
+            trekRouteId: rr.trekRouteId,
+            ratePerDay: rr.ratePerDay,
+          }))
+        );
       })
       .catch(console.error);
   }, [guideId]);
@@ -177,6 +210,26 @@ export default function GuideForm({ guideId }: { guideId?: string }) {
   }
   function removePhoto(idx: number) {
     setPhotos((prev) => prev.filter((_, i) => i !== idx));
+  }
+
+  function addRouteRateRow() {
+    setRouteRates((prev) => [
+      ...prev,
+      { id: genId(), trekRouteId: "", ratePerDay: ratePerDay || 30 },
+    ]);
+  }
+  function removeRouteRateRow(rowId: string) {
+    setRouteRates((prev) => prev.filter((r) => r.id !== rowId));
+  }
+  function updateRouteRateRow(rowId: string, patch: Partial<RouteRateRow>) {
+    setRouteRates((prev) => prev.map((r) => (r.id === rowId ? { ...r, ...patch } : r)));
+  }
+
+  function catalogOptionsForRow(rowId: string) {
+    const taken = new Set(
+      routeRates.filter((r) => r.id !== rowId && r.trekRouteId).map((r) => r.trekRouteId)
+    );
+    return catalogRoutes.filter((r) => !taken.has(r.id));
   }
 
   // ── Save ──
@@ -216,6 +269,9 @@ export default function GuideForm({ guideId }: { guideId?: string }) {
       tags: tags.trim(),
       specializedRoutes: specializedRoutes.trim(),
       fluency,
+      routeRates: routeRates
+        .filter((r) => r.trekRouteId)
+        .map(({ trekRouteId, ratePerDay: d }) => ({ trekRouteId, ratePerDay: d })),
     };
 
     try {
@@ -454,7 +510,10 @@ export default function GuideForm({ guideId }: { guideId?: string }) {
                 onChange={(e) => setRating(Number(e.target.value))}
               />
             </Field>
-            <Field label="Rate / Day (USD)">
+            <Field
+              label="Base rate / day (USD)"
+              hint="Used when no per-route prices are set below. When routes are set, this should be your typical fallback; the site lists the lowest route rate."
+            >
               <input
                 type="number"
                 min={0}
@@ -463,6 +522,98 @@ export default function GuideForm({ guideId }: { guideId?: string }) {
                 onChange={(e) => setRatePerDay(Number(e.target.value))}
               />
             </Field>
+          </div>
+
+          <div className="rounded-xl border border-white/10 bg-slate-950/50 p-4 space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Per-route pricing</p>
+                <p className="text-[11px] text-gray-600 mt-0.5">
+                  Pick treks from your catalog and set USD/day for each. Optional — leave empty to use only the base rate above.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={addRouteRateRow}
+                disabled={catalogRoutes.length === 0}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-nepal-orange/40 bg-nepal-orange/10 px-3 py-1.5 text-xs font-bold text-nepal-orange hover:bg-nepal-orange/20 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+              >
+                <Plus className="w-3.5 h-3.5" /> Add route
+              </button>
+            </div>
+            {catalogRoutes.length === 0 && (
+              <p className="text-xs text-amber-500/90">
+                No trek routes in the database yet. Add regions & routes under Admin → Regions first.
+              </p>
+            )}
+            {routeRates.length > 0 && (
+              <div className="space-y-2">
+                {routeRates.map((row) => {
+                  const opts = catalogOptionsForRow(row.id);
+                  const selected = catalogRoutes.find((c) => c.id === row.trekRouteId);
+                  return (
+                    <div
+                      key={row.id}
+                      className="flex flex-col sm:flex-row sm:items-end gap-2 sm:gap-3 rounded-lg border border-white/5 bg-slate-900/80 p-3"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <label className="block text-[10px] uppercase tracking-wider text-gray-500 font-semibold mb-1">
+                          Trek route
+                        </label>
+                        <div className="relative">
+                          <select
+                            className={selectCls}
+                            value={row.trekRouteId}
+                            onChange={(e) =>
+                              updateRouteRateRow(row.id, { trekRouteId: e.target.value })
+                            }
+                          >
+                            <option value="">Select route…</option>
+                            {(row.trekRouteId
+                              ? [
+                                  ...opts,
+                                  ...(selected && !opts.find((o) => o.id === selected.id)
+                                    ? [selected]
+                                    : []),
+                                ]
+                              : opts
+                            ).map((c) => (
+                              <option key={c.id} value={c.id}>
+                                {c.regionTitle ? `${c.regionTitle} · ` : ""}
+                                {c.title}
+                              </option>
+                            ))}
+                          </select>
+                          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+                        </div>
+                      </div>
+                      <div className="w-full sm:w-28">
+                        <label className="block text-[10px] uppercase tracking-wider text-gray-500 font-semibold mb-1">
+                          $ / day
+                        </label>
+                        <input
+                          type="number"
+                          min={0}
+                          className={inputCls}
+                          value={row.ratePerDay}
+                          onChange={(e) =>
+                            updateRouteRateRow(row.id, { ratePerDay: Number(e.target.value) })
+                          }
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeRouteRateRow(row.id)}
+                        className="self-end sm:self-center p-2 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                        aria-label="Remove route row"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           <Field label="License Number" hint="Leave blank if no license held">

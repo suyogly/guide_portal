@@ -8,7 +8,6 @@ import {
     MapPin,
     Trophy,
     Globe,
-    DollarSign,
     ShieldCheck,
     User,
     CreditCard,
@@ -41,6 +40,7 @@ export default async function GuideProfilePage({ params }: PageProps) {
     if (!guide) notFound();
 
     const firstName = guide.name.split(" ")[0];
+    const hasRouteRates = guide.routeRates.length > 0;
 
     return (
         <>
@@ -49,7 +49,7 @@ export default async function GuideProfilePage({ params }: PageProps) {
                 {/* ── Cover ───────────────────────────────────── */}
                 <div className="relative h-[50vw] max-h-[58vh] min-h-[260px] w-full bg-slate-900">
                     <Image
-                        src={guide.image}
+                        src={guide.coverImage}
                         alt={guide.name}
                         fill
                         className="object-cover object-top opacity-60"
@@ -100,9 +100,14 @@ export default async function GuideProfilePage({ params }: PageProps) {
                                             <p className="text-nepal-orange text-sm font-semibold mt-0.5">{guide.specialty}</p>
                                         </div>
                                         {/* rate badge — desktop top-right */}
-                                        <div className="hidden sm:flex items-baseline gap-1 bg-nepal-orange/10 border border-nepal-orange/20 rounded-2xl px-4 py-2">
-                                            <span className="text-3xl font-display font-bold text-nepal-orange">${guide.ratePerDay}</span>
-                                            <span className="text-nepal-orange/60 text-xs">/&nbsp;day</span>
+                                        <div className="hidden sm:flex flex-col items-end gap-0.5 bg-nepal-orange/10 border border-nepal-orange/20 rounded-2xl px-4 py-2">
+                                            {hasRouteRates && (
+                                                <span className="text-[10px] font-bold uppercase tracking-wider text-nepal-orange/70">From</span>
+                                            )}
+                                            <div className="flex items-baseline gap-1">
+                                                <span className="text-3xl font-display font-bold text-nepal-orange">${guide.ratePerDay}</span>
+                                                <span className="text-nepal-orange/60 text-xs">/&nbsp;day</span>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -133,9 +138,14 @@ export default async function GuideProfilePage({ params }: PageProps) {
                                             {guide.gender}
                                         </div>
                                         {/* rate badge — mobile inline */}
-                                        <div className="flex sm:hidden items-baseline gap-0.5 bg-nepal-orange/10 border border-nepal-orange/20 rounded-xl px-3 py-1">
-                                            <span className="text-nepal-orange font-bold text-sm">${guide.ratePerDay}</span>
-                                            <span className="text-nepal-orange/60 text-[10px]">/day</span>
+                                        <div className="flex sm:hidden flex-col items-end gap-0 bg-nepal-orange/10 border border-nepal-orange/20 rounded-xl px-3 py-1">
+                                            {hasRouteRates && (
+                                                <span className="text-[8px] font-bold uppercase text-nepal-orange/70 leading-none">From</span>
+                                            )}
+                                            <div className="flex items-baseline gap-0.5">
+                                                <span className="text-nepal-orange font-bold text-sm">${guide.ratePerDay}</span>
+                                                <span className="text-nepal-orange/60 text-[10px]">/day</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -271,14 +281,43 @@ export default async function GuideProfilePage({ params }: PageProps) {
 
                                 {/* Rate card */}
                                 <div className="bg-slate-900 border border-white/10 rounded-2xl p-6">
-                                    <p className="uppercase tracking-widest text-xs text-gray-500 font-bold mb-3">Daily Rate</p>
-                                    <div className="flex items-baseline gap-1">
-                                        <span className="text-5xl font-display font-bold text-white">${guide.ratePerDay}</span>
-                                        <span className="text-gray-400 text-sm">/&nbsp;day</span>
-                                    </div>
-                                    <p className="text-gray-500 text-xs mt-1.5">
-                                        Paid directly to {firstName}. No agency markup.
+                                    <p className="uppercase tracking-widest text-xs text-gray-500 font-bold mb-3">
+                                        {hasRouteRates ? "Daily rates by trek" : "Daily rate"}
                                     </p>
+                                    {hasRouteRates ? (
+                                        <>
+                                            <ul className="space-y-2.5 mb-4">
+                                                {guide.routeRates.map((r) => (
+                                                    <li
+                                                        key={r.slug}
+                                                        className="flex items-start justify-between gap-3 text-sm border-b border-white/5 pb-2 last:border-0 last:pb-0"
+                                                    >
+                                                        <span className="text-gray-400 leading-snug">
+                                                            <span className="text-white font-semibold block">{r.title}</span>
+                                                            <span className="text-[11px] text-gray-500">{r.regionTitle}</span>
+                                                        </span>
+                                                        <span className="text-nepal-orange font-bold shrink-0 whitespace-nowrap">
+                                                            ${r.ratePerDay}<span className="text-nepal-orange/50 text-xs font-normal">/day</span>
+                                                        </span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                            <p className="text-gray-500 text-xs">
+                                                From <span className="text-white font-semibold">${guide.ratePerDay}</span>/day on listed treks.
+                                                Paid directly to {firstName}. No agency markup.
+                                            </p>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div className="flex items-baseline gap-1">
+                                                <span className="text-5xl font-display font-bold text-white">${guide.ratePerDay}</span>
+                                                <span className="text-gray-400 text-sm">/&nbsp;day</span>
+                                            </div>
+                                            <p className="text-gray-500 text-xs mt-1.5">
+                                                Paid directly to {firstName}. No agency markup.
+                                            </p>
+                                        </>
+                                    )}
                                 </div>
 
                                 {/* Availability checker */}
@@ -329,7 +368,9 @@ export default async function GuideProfilePage({ params }: PageProps) {
                             </p>
                         </div>
                         <div className="flex items-baseline gap-0.5">
-                            <span className="text-white font-display font-bold text-2xl">${guide.ratePerDay}</span>
+                            <span className="text-white font-display font-bold text-2xl">
+                                {hasRouteRates ? <>From ${guide.ratePerDay}</> : <>${guide.ratePerDay}</>}
+                            </span>
                             <span className="text-gray-500 text-xs">/&nbsp;day</span>
                         </div>
                     </div>

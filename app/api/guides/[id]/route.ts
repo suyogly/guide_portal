@@ -2,12 +2,23 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { guideToApi, type FullGuide } from "../../_lib/transforms";
 import { requireAdmin } from "@/lib/auth";
+import { guidePrismaInclude } from "@/lib/db";
 
-const guideInclude = {
-  languages: true,
-  photos: { orderBy: { order: "asc" as const } },
-  unavailableDates: { orderBy: { date: "asc" as const } },
-} as const;
+function parseRouteRates(raw: unknown): { trekRouteId: string; ratePerDay: number }[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter((x): x is Record<string, unknown> => Boolean(x) && typeof x === "object")
+    .map((x) => ({
+      trekRouteId: String(x.trekRouteId ?? "").trim(),
+      ratePerDay: Number(x.ratePerDay),
+    }))
+    .filter(
+      (x) =>
+        x.trekRouteId.length > 0 &&
+        Number.isFinite(x.ratePerDay) &&
+        x.ratePerDay >= 0
+    );
+}
 
 interface Ctx {
   params: Promise<{ id: string }>;
@@ -18,7 +29,7 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
   try {
     const guide = await prisma.guide.findUnique({
       where: { id },
-      include: guideInclude,
+      include: guidePrismaInclude,
     });
     if (!guide) return NextResponse.json({ error: "Not found" }, { status: 404 });
     return NextResponse.json(guideToApi(guide as FullGuide));
@@ -40,9 +51,18 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
       ratePerDay, rating, gender, region, availabilityStatus, availableFromDate,
       unavailableDates = [], languages = [], tags = "", specializedRoutes = "",
       photos = [], fluency,
+      routeRates: routeRatesRaw,
     } = body;
 
+    const routeRows = parseRouteRates(routeRatesRaw);
+    const baseRate = Number(ratePerDay) || 0;
+    const storedDayRate =
+      routeRows.length > 0
+        ? Math.min(...routeRows.map((r) => r.ratePerDay))
+        : baseRate;
+
     await prisma.$transaction([
+      prisma.guideRouteRate.deleteMany({ where: { guideId: id } }),
       prisma.guideLanguage.deleteMany({ where: { guideId: id } }),
       prisma.guidePhoto.deleteMany({ where: { guideId: id } }),
       prisma.guideUnavailableDate.deleteMany({ where: { guideId: id } }),
@@ -61,7 +81,7 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
         experienceYears: Number(experienceYears) || 0,
         experience: experience || "",
         licenseNumber: licenseNumber || "",
-        ratePerDay: Number(ratePerDay) || 0,
+        ratePerDay: storedDayRate,
         rating: rating ? Number(rating) : null,
         gender,
         region: region || "",
@@ -87,8 +107,17 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
             .filter((d: string) => d)
             .map((d: string) => ({ date: new Date(d) })),
         },
+        routeRates:
+          routeRows.length > 0
+            ? {
+                create: routeRows.map((r) => ({
+                  trekRouteId: r.trekRouteId,
+                  ratePerDay: r.ratePerDay,
+                })),
+              }
+            : undefined,
       },
-      include: guideInclude,
+      include: guidePrismaInclude,
     });
 
     return NextResponse.json(guideToApi(guide as FullGuide));

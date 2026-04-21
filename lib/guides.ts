@@ -1,10 +1,23 @@
 export type AvailabilityStatus = "AVAILABLE" | "UNAVAILABLE" | "AVAILABLE_SOON";
 
+/** Per-route pricing from the trek catalog (public + DB-backed guides). */
+export interface GuideRouteRatePublic {
+    slug: string;
+    title: string;
+    regionTitle: string;
+    ratePerDay: number;
+}
+
 export interface Guide {
     slug: string;
     name: string;
+    /** Wide hero / listing banner; optional upload in admin, else default landscape (not the avatar). */
+    coverImage: string;
+    /** Profile photo / face for small avatars and spotlight cards. */
     image: string;
     avatar?: string;
+    /** USD/day offers tied to `TrekRoute` rows; empty means use `ratePerDay` only. */
+    routeRates: GuideRouteRatePublic[];
     experience: string;
     experienceYears: number;
     specialty: string;
@@ -32,6 +45,8 @@ export const GUIDES: Guide[] = [
         slug: "tulasi-ram-paudel",
         name: "Tulasi Ram Paudel",
         image: "/guides/tulasi-ram-paudel.png",
+        coverImage: "/guides/tulasi-ram-paudel.png",
+        routeRates: [],
         experience: "15+ Years",
         experienceYears: 15,
         specialty: "Trek/Tour/Birding Guide",
@@ -64,6 +79,8 @@ export const GUIDES: Guide[] = [
         slug: "siddhartha-shrestha",
         name: "Siddhartha Shrestha",
         image: "/guides/siddhartha-shrestha.jpg",
+        coverImage: "/guides/siddhartha-shrestha.jpg",
+        routeRates: [],
         experience: "12 Years",
         experienceYears: 12,
         specialty: "Annapurna & Manaslu Specialist",
@@ -97,6 +114,8 @@ export const GUIDES: Guide[] = [
         slug: "chakra-timilsina",
         name: "Chakra Timilsina",
         image: "/guides/chakra-timilsina.jpg",
+        coverImage: "/guides/chakra-timilsina.jpg",
+        routeRates: [],
         experience: "6+ Years",
         experienceYears: 6,
         specialty: "Annapurna Region Specialist",
@@ -129,6 +148,8 @@ export const GUIDES: Guide[] = [
         slug: "jeevan-gurung",
         name: "Jeevan Gurung",
         image: "/guides/jeevan-gurung.jpg",
+        coverImage: "/guides/jeevan-gurung.jpg",
+        routeRates: [],
         experience: "2+ Years",
         experienceYears: 2,
         specialty: "Annapurna & Manaslu Specialist",
@@ -162,6 +183,8 @@ export const GUIDES: Guide[] = [
         slug: "narendra-paudel",
         name: "Narendra Paudel",
         image: "/guides/narendra-paudel.jpg",
+        coverImage: "/guides/narendra-paudel.jpg",
+        routeRates: [],
         experience: "5+ Years",
         experienceYears: 5,
         specialty: "ABC & Poonhill Specialist",
@@ -195,6 +218,8 @@ export const GUIDES: Guide[] = [
         slug: "meleena-basnet",
         name: "Meleena Basnet",
         image: "/guides/meleena-basnet.jpg",
+        coverImage: "/guides/meleena-basnet.jpg",
+        routeRates: [],
         experience: "10+ Years",
         experienceYears: 10,
         specialty: "Multi-Region Expert",
@@ -227,6 +252,8 @@ export const GUIDES: Guide[] = [
         slug: "jeevan-pokherel",
         name: "Jeevan Pokherel",
         image: "/guides/jeevan-pokherel.jpg",
+        coverImage: "/guides/jeevan-pokherel.jpg",
+        routeRates: [],
         experience: "10+ Years",
         experienceYears: 10,
         specialty: "Everest Base Camp",
@@ -260,6 +287,8 @@ export const GUIDES: Guide[] = [
         slug: "nabin-chapai",
         name: "Nabin Chapai",
         image: "/guides/nabin-chapai.jpg",
+        coverImage: "/guides/nabin-chapai.jpg",
+        routeRates: [],
         experience: "12 Years",
         experienceYears: 12,
         specialty: "Multi-Region Specialist",
@@ -294,6 +323,8 @@ export const GUIDES: Guide[] = [
         slug: "eka-devi-mainali",
         name: "Eka Devi Mainali",
         image: "/guides/eka-devi-mainali.jpg",
+        coverImage: "/guides/eka-devi-mainali.jpg",
+        routeRates: [],
         experience: "10+ Years",
         experienceYears: 10,
         specialty: "Manaslu & Tsum Valley",
@@ -326,6 +357,8 @@ export const GUIDES: Guide[] = [
         slug: "pemba-sherpa",
         name: "Pemba Sherpa",
         image: "/guides/pemba-sherpa.jpg",
+        coverImage: "/guides/pemba-sherpa.jpg",
+        routeRates: [],
         experience: "4+ Years",
         experienceYears: 4,
         specialty: "Multi-Region Trekking Expert",

@@ -83,6 +83,19 @@ model Guide {
   languages        GuideLanguage[]
   photos           GuidePhoto[]
   unavailableDates GuideUnavailableDate[]
+  routeRates       GuideRouteRate[]
+}
+
+// Per-guide USD/day rate for a specific trek route from the catalog
+model GuideRouteRate {
+  id          String    @id @default(cuid())
+  guideId     String
+  guide       Guide     @relation(fields: [guideId], references: [id], onDelete: Cascade)
+  trekRouteId String
+  trekRoute   TrekRoute @relation(fields: [trekRouteId], references: [id], onDelete: Cascade)
+  ratePerDay  Decimal   @db.Decimal(10, 2)
+
+  @@unique([guideId, trekRouteId])
 }
 
 // Specific dates a guide is unavailable (booked / blocked)
@@ -164,6 +177,7 @@ model TrekRoute {
 
   itinerary    ItineraryDay[]
   faqs         RouteFaq[]
+  guideRates   GuideRouteRate[]
 }
 
 // Day-by-day itinerary entry for a trek route

@@ -66,7 +66,7 @@ function GuideList() {
                             <div key={guide.name} className="group bg-slate-950 border border-white/10 rounded-3xl overflow-hidden hover:border-nepal-orange/50 transition-all duration-500 hover:shadow-[0_0_40px_rgba(255,107,0,0.1)]">
                                 <div className="relative h-72 overflow-hidden">
                                     <Image
-                                        src={guide.image}
+                                        src={guide.coverImage}
                                         alt={guide.name}
                                         fill
                                         className="object-cover group-hover:scale-110 transition-transform duration-700"
