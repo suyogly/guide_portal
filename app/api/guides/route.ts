@@ -21,6 +21,8 @@ function parseRouteRates(raw: unknown): { trekRouteId: string; ratePerDay: numbe
 }
 
 export async function GET() {
+  const authErr = await requireAdmin();
+  if (authErr) return authErr;
   try {
     const guides = await prisma.guide.findMany({
       include: guidePrismaInclude,

@@ -15,6 +15,8 @@ const regionInclude = {
 } as const;
 
 export async function GET() {
+  const authErr = await requireAdmin();
+  if (authErr) return authErr;
   try {
     const regions = await prisma.trekRegion.findMany({
       include: regionInclude,

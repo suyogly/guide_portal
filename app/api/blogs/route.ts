@@ -4,6 +4,8 @@ import { blogToApi } from "../_lib/transforms";
 import { requireAdmin } from "@/lib/auth";
 
 export async function GET() {
+  const authErr = await requireAdmin();
+  if (authErr) return authErr;
   try {
     const blogs = await prisma.blogPost.findMany({
       orderBy: { publishedAt: "desc" },

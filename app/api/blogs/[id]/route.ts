@@ -8,6 +8,8 @@ interface Ctx {
 }
 
 export async function GET(_req: NextRequest, { params }: Ctx) {
+  const authErr = await requireAdmin();
+  if (authErr) return authErr;
   const { id } = await params;
   try {
     const blog = await prisma.blogPost.findUnique({ where: { id } });
