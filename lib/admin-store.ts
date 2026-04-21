@@ -1,6 +1,33 @@
 // Shared types and utilities for the admin panel.
 // Authentication and data persistence are now handled server-side via API routes.
 
+// ─── Lean list types (used by admin list pages — no heavy relation data) ──────
+
+/** Minimal guide shape needed to render the guides list table. */
+export interface AdminGuideListItem {
+  id: string;
+  name: string;
+  image: string;         // avatar URL (https:// or "")
+  specialty: string;
+  region: string;
+  ratePerDay: number;
+  rating: number;
+  experience: string;
+  availabilityStatus: "AVAILABLE" | "UNAVAILABLE" | "AVAILABLE_SOON";
+  isVerified: boolean;
+}
+
+/** Minimal blog shape needed to render the blogs list table. */
+export interface AdminBlogListItem {
+  id: string;
+  title: string;
+  excerpt: string;
+  category: "TREKKING_TIPS" | "CULTURE" | "SOLO_TRAVEL" | "GEAR_GUIDE";
+  authorName: string;
+  coverImage: string;
+  publishedAt: string;
+}
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface AdminLanguage {

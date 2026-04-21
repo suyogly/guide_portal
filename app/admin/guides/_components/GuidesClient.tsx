@@ -11,10 +11,9 @@ import {
   XCircle,
   Search,
   Star,
-  Shield,
   AlertTriangle,
 } from "lucide-react";
-import type { AdminGuide } from "@/lib/admin-store";
+import type { AdminGuideListItem } from "@/lib/admin-store";
 
 const STATUS_BADGE: Record<
   string,
@@ -66,10 +65,10 @@ function DeleteModal({
   );
 }
 
-export default function GuidesClient({ initialGuides }: { initialGuides: AdminGuide[] }) {
-  const [guides, setGuides] = useState<AdminGuide[]>(initialGuides);
+export default function GuidesClient({ initialGuides }: { initialGuides: AdminGuideListItem[] }) {
+  const [guides, setGuides] = useState<AdminGuideListItem[]>(initialGuides);
   const [search, setSearch] = useState("");
-  const [deleteTarget, setDeleteTarget] = useState<AdminGuide | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<AdminGuideListItem | null>(null);
 
   const filtered = guides.filter(
     (g) =>
@@ -78,7 +77,7 @@ export default function GuidesClient({ initialGuides }: { initialGuides: AdminGu
       g.region.toLowerCase().includes(search.toLowerCase())
   );
 
-  async function handleDelete(guide: AdminGuide) {
+  async function handleDelete(guide: AdminGuideListItem) {
     try {
       await fetch(`/api/guides/${guide.id}`, { method: "DELETE" });
       setGuides((prev) => prev.filter((g) => g.id !== guide.id));
@@ -175,13 +174,10 @@ export default function GuidesClient({ initialGuides }: { initialGuides: AdminGu
                     </td>
                     <td className="px-4 py-3.5">
                       <div className="flex items-center gap-1.5">
-                        {guide.kycVerified && (
-                          <span aria-label="KYC Verified"><Shield className="w-4 h-4 text-emerald-400" /></span>
-                        )}
                         {guide.isVerified && (
-                          <span aria-label="Platform Verified"><CheckCircle2 className="w-4 h-4 text-blue-400" /></span>
+                          <span aria-label="Verified"><CheckCircle2 className="w-4 h-4 text-blue-400" /></span>
                         )}
-                        {!guide.kycVerified && !guide.isVerified && (
+                        {!guide.isVerified && (
                           <span className="text-xs text-gray-600">—</span>
                         )}
                       </div>
