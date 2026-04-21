@@ -75,50 +75,66 @@ async function compressImageForGallery(file: File): Promise<string> {
   });
 }
 
-export default function GuideForm({ guideId }: { guideId?: string }) {
+type CatalogTrekRoute = { id: string; slug: string; title: string; regionTitle: string };
+type RouteRateRow = { id: string; trekRouteId: string; ratePerDay: number };
+
+export default function GuideForm({
+  guideId,
+  initialData,
+  initialCatalogRoutes,
+}: {
+  guideId?: string;
+  initialData?: AdminGuide;
+  initialCatalogRoutes?: CatalogTrekRoute[];
+}) {
   const router = useRouter();
   const isEditing = !!guideId;
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
-  // ── State ──
-  const [name, setName] = useState("");
-  const [slug, setSlug] = useState("");
-  const [specialty, setSpecialty] = useState("");
-  const [quote, setQuote] = useState("");
-  const [description, setDescription] = useState("");
-  const [gender, setGender] = useState<"MALE" | "FEMALE">("MALE");
-  const [region, setRegion] = useState("");
+  // ── State — seeded from SSR props when available ──
+  const [name, setName] = useState(initialData?.name ?? "");
+  const [slug, setSlug] = useState(initialData?.slug ?? "");
+  const [specialty, setSpecialty] = useState(initialData?.specialty ?? "");
+  const [quote, setQuote] = useState(initialData?.quote ?? "");
+  const [description, setDescription] = useState(initialData?.description ?? "");
+  const [gender, setGender] = useState<"MALE" | "FEMALE">(initialData?.gender ?? "MALE");
+  const [region, setRegion] = useState(initialData?.region ?? "");
 
-  const [image, setImage] = useState("");       // profile photo
-  const [coverImage, setCoverImage] = useState(""); // hero background
-  const [photos, setPhotos] = useState<string[]>([]);
+  const [image, setImage] = useState(initialData?.image ?? "");
+  const [coverImage, setCoverImage] = useState(initialData?.coverImage ?? "");
+  const [photos, setPhotos] = useState<string[]>(initialData?.photos ?? []);
 
-  const [experienceYears, setExperienceYears] = useState(0);
-  const [experience, setExperience] = useState("");
-  const [licenseNumber, setLicenseNumber] = useState("");
-  const [kycVerified, setKycVerified] = useState(false);
-  const [isVerified, setIsVerified] = useState(false);
-  const [ratePerDay, setRatePerDay] = useState(30);
-  const [rating, setRating] = useState(5.0);
+  const [experienceYears, setExperienceYears] = useState(initialData?.experienceYears ?? 0);
+  const [experience, setExperience] = useState(initialData?.experience ?? "");
+  const [licenseNumber, setLicenseNumber] = useState(initialData?.licenseNumber ?? "");
+  const [kycVerified, setKycVerified] = useState(initialData?.kycVerified ?? false);
+  const [isVerified, setIsVerified] = useState(initialData?.isVerified ?? false);
+  const [ratePerDay, setRatePerDay] = useState(initialData?.ratePerDay ?? 30);
+  const [rating, setRating] = useState(initialData?.rating ?? 5.0);
 
-  type CatalogTrekRoute = { id: string; slug: string; title: string; regionTitle: string };
-  type RouteRateRow = { id: string; trekRouteId: string; ratePerDay: number };
-  const [catalogRoutes, setCatalogRoutes] = useState<CatalogTrekRoute[]>([]);
-  const [routeRates, setRouteRates] = useState<RouteRateRow[]>([]);
+  const [catalogRoutes, setCatalogRoutes] = useState<CatalogTrekRoute[]>(initialCatalogRoutes ?? []);
+  const [routeRates, setRouteRates] = useState<RouteRateRow[]>(
+    (initialData?.routeRates ?? []).map((rr) => ({
+      id: rr.id,
+      trekRouteId: rr.trekRouteId,
+      ratePerDay: rr.ratePerDay,
+    }))
+  );
 
-  const [unavailableDates, setUnavailableDates] = useState<string[]>([]);
+  const [unavailableDates, setUnavailableDates] = useState<string[]>(initialData?.unavailableDates ?? []);
   const [availabilityStatus, setAvailabilityStatus] =
-    useState<AdminGuide["availabilityStatus"]>("AVAILABLE");
-  const [availableFromDate, setAvailableFromDate] = useState("");
+    useState<AdminGuide["availabilityStatus"]>(initialData?.availabilityStatus ?? "AVAILABLE");
+  const [availableFromDate, setAvailableFromDate] = useState(initialData?.availableFromDate ?? "");
 
-  const [languages, setLanguages] = useState<AdminLanguage[]>([]);
-  const [tags, setTags] = useState("");
-  const [specializedRoutes, setSpecializedRoutes] = useState("");
+  const [languages, setLanguages] = useState<AdminLanguage[]>(initialData?.languages ?? []);
+  const [tags, setTags] = useState(initialData?.tags ?? "");
+  const [specializedRoutes, setSpecializedRoutes] = useState(initialData?.specializedRoutes ?? "");
 
   const [saving, setSaving] = useState(false);
 
-  // ── Trek route catalog (for per-route pricing) ──
+  // ── Trek route catalog — only fetch if not supplied by SSR ──
   useEffect(() => {
+    if (initialCatalogRoutes !== undefined) return;
     fetch("/api/trek-routes")
       .then((r) => r.json())
       .then(
@@ -136,11 +152,12 @@ export default function GuideForm({ guideId }: { guideId?: string }) {
         }
       )
       .catch(() => setCatalogRoutes([]));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ── Load existing guide ──
+  // ── Load existing guide — only if editing AND no SSR data provided ──
   useEffect(() => {
-    if (!guideId) return;
+    if (!guideId || initialData !== undefined) return;
     fetch(`/api/guides/${guideId}`)
       .then((r) => r.json())
       .then((g: AdminGuide) => {
@@ -176,6 +193,7 @@ export default function GuideForm({ guideId }: { guideId?: string }) {
         );
       })
       .catch(console.error);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [guideId]);
 
   // ── Availability change from calendar ──

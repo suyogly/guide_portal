@@ -47,22 +47,25 @@ const CATEGORIES = [
 
 // ─── BlogForm ─────────────────────────────────────────────────────────────────
 
-export default function BlogForm({ blogId }: { blogId?: string }) {
+export default function BlogForm({ blogId, initialData }: { blogId?: string; initialData?: AdminBlog }) {
   const router = useRouter();
   const isEditing = !!blogId;
 
-  const [title, setTitle] = useState("");
-  const [slug, setSlug] = useState("");
-  const [category, setCategory] = useState<AdminBlog["category"]>("TREKKING_TIPS");
-  const [authorName, setAuthorName] = useState("");
-  const [publishedAt, setPublishedAt] = useState(() => new Date().toISOString().split("T")[0]);
-  const [coverImage, setCoverImage] = useState("");
-  const [excerpt, setExcerpt] = useState("");
-  const [content, setContent] = useState("");
+  const [title, setTitle] = useState(initialData?.title ?? "");
+  const [slug, setSlug] = useState(initialData?.slug ?? "");
+  const [category, setCategory] = useState<AdminBlog["category"]>(initialData?.category ?? "TREKKING_TIPS");
+  const [authorName, setAuthorName] = useState(initialData?.authorName ?? "");
+  const [publishedAt, setPublishedAt] = useState(
+    initialData?.publishedAt ?? new Date().toISOString().split("T")[0]
+  );
+  const [coverImage, setCoverImage] = useState(initialData?.coverImage ?? "");
+  const [excerpt, setExcerpt] = useState(initialData?.excerpt ?? "");
+  const [content, setContent] = useState(initialData?.content ?? "");
   const [saving, setSaving] = useState(false);
 
+  // Only fetch if editing and no SSR data was provided
   useEffect(() => {
-    if (!blogId) return;
+    if (!blogId || initialData !== undefined) return;
     fetch(`/api/blogs/${blogId}`)
       .then((r) => r.json())
       .then((b: AdminBlog) => {
@@ -76,6 +79,7 @@ export default function BlogForm({ blogId }: { blogId?: string }) {
         setContent(b.content);
       })
       .catch(console.error);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [blogId]);
 
   async function handleSave() {

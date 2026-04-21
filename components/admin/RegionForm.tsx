@@ -95,20 +95,32 @@ function FaqEditor({ faqs, onChange }: { faqs: AdminFaq[]; onChange: (f: AdminFa
 
 // ─── RegionForm ───────────────────────────────────────────────────────────────
 
-export default function RegionForm({ regionId }: { regionId?: string }) {
+type RegionInitialData = {
+  title: string;
+  slug: string;
+  description: string;
+  heroImage: string;
+  publishedAt: string;
+  faqs: AdminFaq[];
+};
+
+export default function RegionForm({ regionId, initialData }: { regionId?: string; initialData?: RegionInitialData }) {
   const router = useRouter();
   const isEditing = !!regionId;
 
-  const [title, setTitle] = useState("");
-  const [slug, setSlug] = useState("");
-  const [description, setDescription] = useState("");
-  const [heroImage, setHeroImage] = useState("");
-  const [publishedAt, setPublishedAt] = useState(() => new Date().toISOString().split("T")[0]);
-  const [faqs, setFaqs] = useState<AdminFaq[]>([]);
+  const [title, setTitle] = useState(initialData?.title ?? "");
+  const [slug, setSlug] = useState(initialData?.slug ?? "");
+  const [description, setDescription] = useState(initialData?.description ?? "");
+  const [heroImage, setHeroImage] = useState(initialData?.heroImage ?? "");
+  const [publishedAt, setPublishedAt] = useState(
+    initialData?.publishedAt ? initialData.publishedAt.split("T")[0] : new Date().toISOString().split("T")[0]
+  );
+  const [faqs, setFaqs] = useState<AdminFaq[]>(initialData?.faqs ?? []);
   const [saving, setSaving] = useState(false);
 
+  // Only fetch if editing and no SSR data was provided
   useEffect(() => {
-    if (!regionId) return;
+    if (!regionId || initialData !== undefined) return;
     fetch(`/api/regions/${regionId}`)
       .then((r) => r.json())
       .then((r: { title: string; slug: string; description: string; heroImage: string; publishedAt: string; faqs: AdminFaq[] }) => {
@@ -120,6 +132,7 @@ export default function RegionForm({ regionId }: { regionId?: string }) {
         setFaqs(r.faqs ?? []);
       })
       .catch(console.error);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [regionId]);
 
   async function handleSave() {

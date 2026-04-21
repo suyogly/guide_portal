@@ -1,12 +1,19 @@
-"use client";
-import { use } from "react";
+import { notFound } from "next/navigation";
+import { prisma } from "@/lib/prisma";
+import { blogToApi } from "@/app/api/_lib/transforms";
 import BlogForm from "@/components/admin/BlogForm";
 
-export default function EditBlogPage({
+export const dynamic = "force-dynamic";
+
+export default async function EditBlogPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = use(params);
-  return <BlogForm blogId={id} />;
+  const { id } = await params;
+
+  const blog = await prisma.blogPost.findUnique({ where: { id } });
+  if (!blog) notFound();
+
+  return <BlogForm blogId={id} initialData={blogToApi(blog)} />;
 }
