@@ -32,7 +32,7 @@ export default function Hero() {
 
             <motion.div
                 style={{ y: textY }}
-                className="relative z-10 w-full max-w-4xl text-center space-y-8"
+                className="relative z-10 w-full max-w-4xl text-center space-y-8 mt-90"
             >
                 {/* Removed 'For the Solo Traveler' tag per request */}
                 <h1 className="text-5xl md:text-7xl font-display font-bold tracking-tight text-white drop-shadow-lg">
