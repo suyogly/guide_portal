@@ -18,6 +18,8 @@ import {
 import { getAllGuides, getGuideBySlug } from "@/lib/db";
 import GuideAvailabilityChecker from "@/components/GuideAvailabilityChecker";
 
+export const revalidate = 60;
+
 interface PageProps {
     params: Promise<{ slug: string }>;
 }

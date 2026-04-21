@@ -55,12 +55,26 @@ function formatDate(d: Date): string {
   });
 }
 
+/** Used when no cover, avatar, or gallery URL exists — avoids empty `next/image` src. */
+const DEFAULT_GUIDE_COVER_IMAGE =
+  "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=80&auto=format&fit=crop";
+
+function resolveGuideCoverImage(g: FullDBGuide): string {
+  const cover = g.coverImage?.trim();
+  if (cover) return cover;
+  const avatar = g.avatar?.trim();
+  if (avatar) return avatar;
+  const firstPhoto = g.photos[0]?.url?.trim();
+  if (firstPhoto) return firstPhoto;
+  return DEFAULT_GUIDE_COVER_IMAGE;
+}
+
 function dbGuideToPublic(g: FullDBGuide): Guide {
   return {
     slug: g.slug,
     name: g.name,
-    image: g.coverImage ?? g.avatar ?? "",
-    avatar: g.avatar ?? "",
+    image: resolveGuideCoverImage(g),
+    avatar: g.avatar?.trim() || "",
     experience: g.experience ?? `${g.experienceYears} Years`,
     experienceYears: g.experienceYears,
     specialty: g.specialty ?? "",

@@ -6,6 +6,9 @@ export const metadata = {
   description: "Browse our vetted, professional trekking guides across Nepal's Everest, Annapurna, Langtang, and Manaslu regions.",
 };
 
+/** Revalidate so new guides from the admin DB appear on Vercel without a full redeploy. */
+export const revalidate = 60;
+
 export default async function GuideLandingPage() {
   const guides = await getAllGuides();
   return <GuidesContent guides={guides} />;
